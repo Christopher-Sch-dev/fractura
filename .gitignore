@@ -40,10 +40,10 @@ Thumbs.db
 *.crt
 *.secret
 
-# Data (keep structure, exclude content)
-data/raw/
-data/tmp/
-data/secrets/
+# Data
+*.csv
+*.xlsx
+*.parquet
 
 # Database
 *.db

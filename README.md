@@ -17,7 +17,7 @@ FRACTURA es una herramienta de análisis de datos públicos chilenos para detect
 Esto significa:
 - Estructura del repositorio creada
 - Fuentes de datos documentadas
-- Modelo de datos diseñado (KuzuDB)
+- Modelo de datos definido: KuzuDB
 - Stack técnico definido
 
 **No significa:**
@@ -35,7 +35,7 @@ El código empieza cuando comience el kickoff.
 | Fuente | Tipo | Acceso |
 |--------|------|--------|
 | ChileCompra Datos Abiertos | Compras públicas, proveedores, contratos | Libre |
-| corrupcion_chile (GitHub) | Casos reales documentados, casos 1989-2025 | Público |
+| corrupcion_chile (GitHub) | Casos reales documentados de corrupción en Chile | Público |
 | Mercado Público API | Licitaciones, adjudicaciones | Requiere ticket |
 
 ---
@@ -59,7 +59,7 @@ fractura/
 ├── backend/      # FastAPI app (post-kickoff)
 ├── frontend/     # React 19 + Vite (post-kickoff)
 ├── docs/         # Documentación del proyecto
-├── data/         # Datos públicos versionables
+├── data/         # Metadatos, trazabilidad o artefactos livianos; no datos crudos
 ├── AGENT.md      # Instrucciones para agentes de código
 ├── .env.example  # Variables de entorno (plantilla pública)
 ├── .gitignore

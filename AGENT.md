@@ -51,10 +51,10 @@ fractura/
 ## Datos reales — fuentes trazadas
 
 | Fuente | Ubicación | Acceso |
-|--------|-----------|-------|
-| ChileCompra Datos Abiertos | https://www.chilecompra.cl/opensource/ | Libre |
+|--------|-----------|--------|
+| ChileCompra Datos Abiertos | https://datos-abiertos.chilecompra.cl | Libre |
 | corrupcion_chile | https://github.com/bastianolea/corrupcion_chile | Público |
-| Mercado Público API | https://www.mercadopublico.cl | Requiere ticket |
+| Mercado Público API | https://www.chilecompra.cl/api/ | Requiere ticket |
 
 ## Contacto con el usuario
 

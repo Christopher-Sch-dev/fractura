@@ -2,23 +2,23 @@
 
 ## 1. ChileCompra — Datos Abiertos
 
-**URL principal:** https://www.chilecompra.cl/
+**URL principal:** https://datos-abiertos.chilecompra.cl
 
-**URL de descargas:** https://www.chilecompra.cl/opensource/
+**URL de descargas:** https://datos-abiertos.chilecompra.cl/descargas/procesos-ocds
 
-**Descripción:** Portal de compras públicas de Chile. Ofrece datasets con información de proveedores, contrataciones, licitaciones y adjudicaciones.
+**Descripción:** Portal de datos abiertos de ChileCompra con descargas masivas de órdenes de compra, licitaciones y otros procesos en formatos abiertos.
 
-**Acceso:** Libre, sin autenticación. Descarga directa de archivos CSV.
+**Acceso:** Libre, sin autenticación.
 
-**Prioridad:** Alta — es la fuente primaria de datos de contrataciones públicas.
+**Prioridad:** Alta — fuente primaria de contrataciones públicas.
 
-**Estado:** Sin descarga activa — se documenta como fuente objetivo.
+**Estado:** Documentada como fuente objetivo; sin descarga activa en este repositorio.
 
 ---
 
 ## 2. API Mercado Público
 
-**URL oficial:** https://www.mercadopublico.cl/
+**URL oficial:** https://www.chilecompra.cl/api/
 
 **Descripción:** Plataforma de licitaciones del Estado chileno. API para acceder a información de procesos de compras públicas.
 
