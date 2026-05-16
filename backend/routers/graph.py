@@ -31,17 +31,7 @@ def graph_chilecompra(
                     node_ids.add(l[1])  # proveedor
                     node_ids.add(l[2])  # contrato
 
-                nodes = []
-                for nid in node_ids:
-                    row = db.execute("""
-                        SELECT rut, nombre, 'Organismo' FROM organismo WHERE rut = ?
-                        UNION ALL
-                        SELECT id, nombre, 'Empresa' FROM empresa WHERE id = ?
-                        UNION ALL
-                        SELECT id, oc_id, 'Contrato' FROM contrato WHERE id = ?
-                    """, (nid, nid, nid)).fetchone()
-                    if row:
-                        nodes.append({"id": row[0], "label": row[1], "tipo": row[2]})
+                nodes = _fetch_nodes_batch(db, node_ids)
 
                 graph_links = [{"source": l[0], "target": l[1]} for l in links]
 
@@ -59,17 +49,7 @@ def graph_chilecompra(
                     node_ids.add(l[1])
                     node_ids.add(l[2])
 
-                nodes = []
-                for nid in node_ids:
-                    row = db.execute("""
-                        SELECT rut, nombre, 'Organismo' FROM organismo WHERE rut = ?
-                        UNION ALL
-                        SELECT id, nombre, 'Empresa' FROM empresa WHERE id = ?
-                        UNION ALL
-                        SELECT id, oc_id, 'Contrato' FROM contrato WHERE id = ?
-                    """, (nid, nid, nid)).fetchone()
-                    if row:
-                        nodes.append({"id": row[0], "label": row[1], "tipo": row[2]})
+                nodes = _fetch_nodes_batch(db, node_ids)
 
                 graph_links = [{"source": l[0], "target": l[1]} for l in links]
 
@@ -78,14 +58,19 @@ def graph_chilecompra(
 
         else:
             # Grafo completo — organismos + empresas + contratos del slice
-            # Limitar a los primeros 'limit' contratos y sus nodos conectados
-            where_fuente = f" AND c.fuente = '{fuente}' " if fuente else ""
-            contracts = db.execute(f"""
-                SELECT DISTINCT c.organismo_id, c.proveedor_id, c.id
-                FROM contrato c
-                WHERE 1=1 {where_fuente}
-                LIMIT ?
-            """, (limit,)).fetchall()
+            if fuente:
+                contracts = db.execute("""
+                    SELECT DISTINCT c.organismo_id, c.proveedor_id, c.id
+                    FROM contrato c
+                    WHERE c.fuente = ?
+                    LIMIT ?
+                """, (fuente, limit)).fetchall()
+            else:
+                contracts = db.execute("""
+                    SELECT DISTINCT c.organismo_id, c.proveedor_id, c.id
+                    FROM contrato c
+                    LIMIT ?
+                """, (limit,)).fetchall()
 
             node_ids = set()
             for l in contracts:
@@ -93,17 +78,7 @@ def graph_chilecompra(
                 node_ids.add(l[1])
                 node_ids.add(l[2])
 
-            nodes = []
-            for nid in node_ids:
-                row = db.execute("""
-                    SELECT rut, nombre, 'Organismo' FROM organismo WHERE rut = ?
-                    UNION ALL
-                    SELECT id, nombre, 'Empresa' FROM empresa WHERE id = ?
-                    UNION ALL
-                    SELECT id, oc_id, 'Contrato' FROM contrato WHERE id = ?
-                """, (nid, nid, nid)).fetchone()
-                if row:
-                    nodes.append({"id": row[0], "label": row[1], "tipo": row[2]})
+            nodes = _fetch_nodes_batch(db, node_ids)
 
             graph_links = [{"source": l[0], "target": l[1]} for l in contracts]
 
@@ -112,3 +87,33 @@ def graph_chilecompra(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+def _fetch_nodes_batch(db, node_ids: set) -> list[dict]:
+    """Fetch all nodes in a single query instead of N queries with UNION ALL."""
+    if not node_ids:
+        return []
+
+    # Single query with UNION ALL — 1 query total instead of N*3
+    placeholders = ", ".join(["?"] * len(node_ids))
+    nid_list = list(node_ids)
+
+    rows = db.execute(f"""
+        SELECT rut as id, nombre, 'Organismo' as tipo
+        FROM organismo
+        WHERE rut IN ({placeholders})
+        UNION ALL
+        SELECT id, nombre, 'Empresa' as tipo
+        FROM empresa
+        WHERE id IN ({placeholders})
+        UNION ALL
+        SELECT id, oc_id, 'Contrato' as tipo
+        FROM contrato
+        WHERE id IN ({placeholders})
+    """, nid_list + nid_list + nid_list).fetchall()
+
+    return [
+        {"id": row[0], "label": row[1], "tipo": row[2]}
+        for row in rows
+        if row[0] and row[1]
+    ]
