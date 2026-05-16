@@ -175,7 +175,7 @@ export const Dashboard: FC = () => {
           align-items: center;
           gap: 1.5rem;
           padding: 0.75rem 1rem;
-          background: rgba(12, 11, 9, 0.6);
+          background: var(--color-bg-overlay);
           border: 1px solid rgba(0, 229, 255, 0.1);
           clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
         }

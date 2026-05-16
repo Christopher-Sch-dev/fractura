@@ -116,7 +116,7 @@ export const AlertDetail: FC<AlertDetailProps> = ({ alerta, onClose, onShowInGra
           max-width: 95vw;
           max-height: 100vh;
           overflow-y: auto;
-          background: #141310;
+          background: var(--color-surface);
           border: 1px solid rgba(0, 229, 255, 0.25);
           border-right: none;
           display: flex;

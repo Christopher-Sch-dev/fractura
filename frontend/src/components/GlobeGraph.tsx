@@ -61,7 +61,7 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
         nodeCanvasObjectMode: () => 'replace',
         nodeCanvasObject: (node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
           const isVirginia = node.id === virginiaId
-          const baseR = isVirginia ? 8 : node.tipo === 'Contrato' ? 3 : 5
+          const baseR = isVirginia ? 10 : node.tipo === 'Contrato' ? 3 : 5
           const r = Math.max(4, baseR / globalScale)
           const color = isVirginia ? '#ff1a1a' : (TIPO_COLORS[node.tipo] ?? '#f0f0e8')
 
@@ -84,7 +84,7 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
             ctx.stroke()
           }
         },
-        linkColor: () => 'rgba(0, 229, 255, 0.2)',
+        linkColor: () => 'var(--color-primary-20)',
         linkWidth: 1,
         onNodeClick: (node: any) => {
           onNodeClick?.(node as GraphNode)
