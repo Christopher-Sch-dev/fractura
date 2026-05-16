@@ -1,0 +1,38 @@
+services:
+  db:
+    image: apache/age:latest
+    container_name: fractura_db
+    ports:
+      - "5455:5432"
+    environment:
+      POSTGRES_USER: fractura
+      POSTGRES_PASSWORD: fractura_dev
+      POSTGRES_DB: fractura
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fractura -d fractura"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: fractura_backend
+    ports:
+      - "8000:8000"
+    environment:
+      DB_MODE: postgres
+      DATABASE_URL: postgresql://fractura:fractura_dev@db:5432/fractura
+      LOCAL_DATA_PATH: /data
+    volumes:
+      - C:/Users/chris/fractura_research/fractura-local-data:/data:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
