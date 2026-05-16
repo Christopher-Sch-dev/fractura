@@ -1,0 +1,32 @@
+:root {
+--color-bg: #0c0b09;
+  --color-surface: #141310;
+  --color-bg-overlay: rgba(12, 11, 9, 0.6);
+  --color-primary: #00e5ff;
+  --color-primary-20: rgba(0, 229, 255, 0.2);
+  --color-alert: #ff1a1a;
+  --color-accent: #e87c0a;
+  --color-critical: #39ff14;
+  --scanline-opacity: 0.04;
+  --color-primary-10: rgba(0, 229, 255, 0.1);
+  --color-primary-15: rgba(0, 229, 255, 0.15);
+  --color-primary-20: rgba(0, 229, 255, 0.2);
+  --color-text-40: rgba(240, 240, 232, 0.4);
+  --color-bg-60: rgba(12, 11, 9, 0.6);
+  --scanline-opacity: 0.04;
+  --noise-opacity: 0.03;
+  --glitch-offset: 1.5px;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after {
+  border-radius: 0 !important;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+}
