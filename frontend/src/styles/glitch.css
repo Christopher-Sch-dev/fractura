@@ -1,0 +1,39 @@
+/* Glitch keyframe animation para títulos activos */
+
+@keyframes glitch-shift {
+  0%   { text-shadow: calc(var(--glitch-offset) * 1)  0 var(--color-alert),  calc(var(--glitch-offset) * -1) 0 var(--color-primary); }
+  25%  { text-shadow: calc(var(--glitch-offset) * -1) 0 var(--color-alert),  calc(var(--glitch-offset) * 1)  0 var(--color-primary); }
+  50%  { text-shadow: calc(var(--glitch-offset) * 0.5) calc(var(--glitch-offset) * 0.5) var(--color-alert),  calc(var(--glitch-offset) * -0.5) calc(var(--glitch-offset) * -0.5) var(--color-primary); }
+  75%  { text-shadow: calc(var(--glitch-offset) * -0.5) 0 var(--color-alert),  calc(var(--glitch-offset) * 0.5) 0 var(--color-primary); }
+  100% { text-shadow: calc(var(--glitch-offset) * 1)  0 var(--color-alert),  calc(var(--glitch-offset) * -1) 0 var(--color-primary); }
+}
+
+@keyframes glitch-clip {
+  0%   { clip-path: inset(0% 0 98% 0); }
+  25%  { clip-path: inset(30% 0 50% 0); }
+  50%  { clip-path: inset(60% 0 20% 0); }
+  75%  { clip-path: inset(80% 0 5%  0); }
+  100% { clip-path: inset(0% 0 98% 0); }
+}
+
+.glitch-text {
+  position: relative;
+}
+
+.glitch-text--active {
+  animation:
+    glitch-shift 0.4s infinite linear,
+    glitch-clip 0.4s infinite linear;
+}
+
+.glitch-text--hover:hover {
+  animation:
+    glitch-shift 0.3s ease-in-out,
+    glitch-clip 0.3s ease-in-out;
+}
+
+/* Fragmentación en hover — clip-path transition en cards */
+@keyframes clip-fragment {
+  0%   { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+  100% { clip-path: polygon(2px 0, 100% 0, 100% 100%, 0 calc(100% - 2px)); }
+}

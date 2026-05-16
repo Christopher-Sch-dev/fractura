@@ -1,0 +1,153 @@
+@import './tokens.css';
+@import './scanlines.css';
+@import './glitch.css';
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Tabular nums para datos — los montos se leen como señal */
+.mono-data {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Scanlines overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 2px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 3px
+  );
+}
+
+/* Scrollbar estilo terminal */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  opacity: 0.5;
+}
+
+/* Focus visible — sin outline genérico */
+:focus-visible {
+  outline: 1px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Links */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Botones base */
+button {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+/* Input base */
+input, textarea, select {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--color-primary);
+}
+
+/* Tablas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+}
+th {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary);
+}
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.6875rem;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+}
+.badge--high, .badge--critical {
+  background: var(--color-alert);
+  color: var(--color-bg);
+}
+.badge--medium {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+.badge--low {
+  background: var(--color-primary);
+  color: var(--color-bg);
+}
+
+/* No border-radius anywhere — verification class */
+.no-radius {
+  border-radius: 0 !important;
+}

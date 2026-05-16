@@ -1,0 +1,38 @@
+services:
+  db:
+    image: apache/age:latest
+    container_name: fractura_db
+    ports:
+      - "5455:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fractura}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      POSTGRES_DB: ${POSTGRES_DB:-fractura}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fractura} -d ${POSTGRES_DB:-fractura}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: fractura_backend
+    ports:
+      - "8000:8000"
+    environment:
+      DB_MODE: postgres
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-fractura}:${POSTGRES_PASSWORD:?err}@db:5432/${POSTGRES_DB:-fractura}}
+      LOCAL_DATA_PATH: /data
+    volumes:
+      - ${LOCAL_DATA_PATH:-./data}:/data:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

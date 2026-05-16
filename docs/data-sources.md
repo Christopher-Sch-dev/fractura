@@ -3,53 +3,43 @@
 ## 1. ChileCompra — Datos Abiertos
 
 **URL principal:** https://datos-abiertos.chilecompra.cl
+**URL descargas:** https://datos-abiertos.chilecompra.cl/descargas/procesos-ocds
 
-**URL de descargas:** https://datos-abiertos.chilecompra.cl/descargas/procesos-ocds
+**Descripción:** Portal de datos abiertos con órdenes de compra, licitaciones y procesos en formato OCDS. Acceso libre, sin autenticación.
 
-**Descripción:** Portal de datos abiertos de ChileCompra con descargas masivas de órdenes de compra, licitaciones y otros procesos en formatos abiertos.
+**Estado actual:** Cargado en DuckDB — 318K órdenes de compra 2023 (enero). Genera alertas P2 (fraccionamiento) y P3 (multi-org).
 
-**Acceso:** Libre, sin autenticación.
-
-**Prioridad:** Alta — fuente primaria de contrataciones públicas.
-
-**Estado:** Documentada como fuente objetivo; sin descarga activa en este repositorio.
+**Ruta local:** `backend/loaders/chilecompra.py` — lee ZIPs directos sin descomprimir.
 
 ---
 
 ## 2. API Mercado Público
 
-**URL oficial:** https://www.chilecompra.cl/api/
+**URL:** https://www.chilecompra.cl/api/
 
-**Descripción:** Plataforma de licitaciones del Estado chileno. API para acceder a información de procesos de compras públicas.
+**Descripción:** API de licitaciones del Estado chileno.
 
-**Acceso:** Requiere ticket de acceso (registro gratuito disponible).
-
-**Prioridad:** Alta — fuente complementaria de licitaciones.
-
-**Estado:** Sin acceso activo verificado — requiere registro manual antes de implementar.
+**Estado:** Sin acceso activo verificado — requiere registro manual.
 
 ---
 
 ## 3. bastianolea/corrupcion_chile
 
-**URL GitHub:** https://github.com/bastianolea/corrupcion_chile
+**URL:** https://github.com/bastianolea/corrupcion_chile
 
-**Descripción:** Repositorio con casos reales de corrupción en Chile (1989-2025). Incluye datos de白衣 municipal, casos parlamentares, y casos de organismos públicos. CSV con 131 casos documentados.
+**Descripción:** 131 casos reales documentados de corrupción en Chile (1989–2025). CSV con estructura: caso, monto, sector, partido, comuna, delitos, estado, conclusión.
 
-**Acceso:** Público, sin restricciones.
+**Estado actual:** Cargado en DuckDB. 74 alertas generadas (severity high/medium según keywords detection). Virginia Reginato visible como alerta de alta.
 
-**Prioridad:** Alta — útil para casos reales y como anchor narrativo en la demo.
-
-**Estado:** Fuente referenciada, no descargada al repo. Disponible para uso en kickoff.
+**Ruta de datos:** `C:/Users/chris/fractura_research/fractura-local-data/raw/corrupcion_chile/casos_corrupcion_chile.csv`
 
 ---
 
-## Nota sobre datos
+## Regla de datos
 
-Estos archivos NO deben subirse al repositorio público:
-- CSVs crudos de ChileCompra
-- Dumps de la API Mercado Público
-- Archivos .xlsx con datos originales
-- Cualquier binario o dato que supere 1MB
+Archivos > 1MB no se suben al repo. Excepciones: diccionarios de datos, archivos de trazabilidad pequeños.
 
-La excepción son archivos pequeños de trazabilidad (ej: listas de columnas, diccionarios de datos).
+```
+.gitignore bloquea:
+  *.csv  *.xlsx  *.zip  *.parquet  *.db  *.db-journal
+```
