@@ -4,6 +4,22 @@
   flex-direction: column;
   min-height: 100vh;
   background: var(--color-bg);
+  position: relative;
+}
+
+/* Background layers */
+.dashboard::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image:
+    radial-gradient(circle at 2px 2px, rgba(0, 229, 255, 0.08) 1px, transparent 0),
+    linear-gradient(45deg, transparent 49.5%, rgba(0, 229, 255, 0.04) 50%, transparent 50.5%),
+    linear-gradient(-45deg, transparent 49.5%, rgba(0, 229, 255, 0.04) 50%, transparent 50.5%);
+  background-size: 40px 40px, 120px 120px, 120px 120px;
+  opacity: 0.5;
 }
 
 /* HEADER */
@@ -13,7 +29,10 @@
   justify-content: space-between;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--color-primary-15);
-  background: rgba(5, 5, 5, 0.9);
+  background: rgba(5, 5, 5, 0.95);
+  backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 10;
 }
 
 .dashboard__logo-row {
@@ -23,18 +42,22 @@
 }
 
 .dashboard__logo {
-  font-family: var(--font-heading);
-  font-size: 2rem;
-  letter-spacing: 0.15em;
-  color: var(--color-primary);
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: var(--brand-cyan);
   text-shadow: var(--glow-primary);
+  text-transform: uppercase;
+  font-style: italic;
+  transform: skewX(-10deg);
 }
 
 .dashboard__live-badge {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-family: var(--font-heading);
+  font-family: var(--font-mono);
   font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -60,7 +83,7 @@
 .dashboard__clock {
   font-size: 0.6rem;
   letter-spacing: 0.08em;
-  color: var(--color-text-2);
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
@@ -70,6 +93,8 @@
   grid-template-columns: 30% 47% 23%;
   flex: 1;
   min-height: 0;
+  position: relative;
+  z-index: 2;
 }
 
 /* LEFT — Hero + Alert list */
@@ -87,17 +112,18 @@
 }
 
 .dashboard__headline {
-  font-family: var(--font-heading);
+  font-family: var(--font-sans);
   font-size: clamp(1.1rem, 1.5vw, 1.6rem);
-  line-height: 1.2;
-  color: var(--color-text-bright);
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--text-bright);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: -0.03em;
   margin: 0 0 0.75rem 0;
 }
 
 .dashboard__headline--accent {
-  color: var(--color-primary);
+  color: var(--brand-cyan);
   text-shadow: var(--glow-primary);
 }
 
@@ -105,7 +131,7 @@
   font-family: var(--font-mono);
   font-size: 0.7rem;
   line-height: 1.6;
-  color: var(--color-text-2);
+  color: var(--text-muted);
   margin: 0 0 1rem 0;
   letter-spacing: 0.02em;
 }
@@ -117,22 +143,24 @@
   padding: 0.5rem 1rem;
   background: transparent;
   border: 1px solid var(--color-primary-40);
-  color: var(--color-primary);
-  font-family: var(--font-heading);
+  color: var(--brand-cyan);
+  font-family: var(--font-mono);
   font-size: 0.6875rem;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
 }
 
 .dashboard__cta:hover {
-  border-color: var(--color-primary);
+  border-color: var(--brand-cyan);
   box-shadow: var(--glow-primary);
+  background: rgba(0, 229, 255, 0.05);
 }
 
 .dashboard__cta-arrow {
-  color: var(--color-primary);
+  color: var(--brand-cyan);
 }
 
 .dashboard__alert-list {
@@ -175,19 +203,21 @@
 }
 
 .stat-block__value {
-  font-family: var(--font-heading);
+  font-family: var(--font-sans);
   font-size: 2.5rem;
-  color: var(--color-primary);
+  font-weight: 900;
+  color: var(--brand-cyan);
   font-variant-numeric: tabular-nums;
   line-height: 1;
   text-shadow: var(--glow-primary);
+  letter-spacing: -0.05em;
 }
 
 .stat-block__label {
   font-family: var(--font-mono);
   font-size: 0.5875rem;
   letter-spacing: 0.18em;
-  color: var(--color-text-2);
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
@@ -196,15 +226,17 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   border-top: 1px solid var(--color-primary-15);
+  position: relative;
+  z-index: 2;
 }
 
 .footer-card {
   padding: 0.875rem 1.25rem;
-  font-family: var(--font-heading);
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-text-2);
+  color: var(--text-muted);
   border-right: 1px solid var(--color-primary-10);
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
@@ -213,7 +245,7 @@
 .footer-card:last-child { border-right: none; }
 
 .footer-card:hover {
-  color: var(--color-primary);
+  color: var(--brand-cyan);
   border-color: var(--color-primary-30);
 }
 

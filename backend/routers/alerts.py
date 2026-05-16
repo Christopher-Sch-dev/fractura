@@ -35,7 +35,7 @@ def get_alert_by_id(alert_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/alerts", response_model=AlertaResponse)
+@router.get("/alerts")
 def get_alerts():
     try:
         db = get_db()
@@ -63,6 +63,6 @@ def get_alerts():
                 "created_at": str(row[10]) if row[10] else None,
                 "caso_id": row[11] if len(row) > 11 else None,
             })
-        return AlertaResponse(alertas=alertas)
+        return {"alertas": alertas}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

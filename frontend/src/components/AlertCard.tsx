@@ -19,13 +19,15 @@ const PATRON_COLORS: Record<string, string> = {
   'multi-org': 'var(--color-primary)',
 }
 
-function formatMonto(monto: number | null): string {
+function formatMonto(monto: number | string | null): string {
   if (monto == null) return '—'
+  const n = Number(monto)
+  if (isNaN(n)) return '—'
   return new Intl.NumberFormat('es-CL', {
     style: 'currency',
     currency: 'CLP',
     maximumFractionDigits: 0,
-  }).format(monto)
+  }).format(n)
 }
 
 export const AlertCard: FC<AlertCardProps> = ({ alerta, onClick }) => {
