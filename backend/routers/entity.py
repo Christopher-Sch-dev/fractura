@@ -10,11 +10,11 @@ def get_entity(entity_id: str):
         db = get_db()
         row = db.execute("""
             SELECT id, nombre, tipo, fuente FROM (
-                SELECT id, nombre, 'Organismo' AS tipo, fuente FROM organismo WHERE rut = ?
+                SELECT rut AS id, nombre, 'Organismo' AS tipo, fuente FROM organismo WHERE rut = ?
                 UNION ALL
-                SELECT id, nombre, 'Empresa' AS tipo, fuente FROM empresa WHERE rut = ?
+                SELECT id, nombre, 'Empresa' AS tipo, fuente FROM empresa WHERE id = ?
                 UNION ALL
-                SELECT id, nombre, 'Contrato' AS tipo, fuente FROM contrato WHERE id = ?
+                SELECT id, oc_id AS nombre, 'Contrato' AS tipo, fuente FROM contrato WHERE id = ?
             ) t LIMIT 1
         """, (entity_id, entity_id, entity_id)).fetchone()
 
