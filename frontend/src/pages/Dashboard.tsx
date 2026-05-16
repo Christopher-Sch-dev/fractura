@@ -89,7 +89,7 @@ export const Dashboard: FC = () => {
         <section className="dashboard__center">
           <div className="dashboard__graph-wrapper">
             <GlobeGraph
-              data={graphData ?? undefined}
+              data={graphData ?? null}
               loading={graphLoading}
               error={graphError}
               onNodeClick={(node: GraphNode) => {

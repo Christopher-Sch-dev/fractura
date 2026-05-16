@@ -1,4 +1,4 @@
-import { type FC, useRef, useEffect, useCallback } from 'react'
+import { type FC, useRef, useCallback } from 'react'
 import ForceGraph2DLib from 'react-force-graph-2d'
 import type { GraphData, GraphNode } from '../api/graph'
 import type { Alerta } from '../api/alerts'

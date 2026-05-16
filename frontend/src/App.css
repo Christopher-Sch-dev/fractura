@@ -1,10 +1,12 @@
-@import './styles/tokens.css';
-@import './styles/global.css';
-@import './styles/scanlines.css';
-@import './styles/glitch.css';
+/* Tailwind + tokens loaded via index.css → main.tsx */
+@import './index.css';
+
+/* Component CSS — migrate to Tailwind in Step 3 */
 @import './dashboard.css';
 @import './globe-graph.css';
 @import './alert-table.css';
 @import './alert-detail.css';
 @import './alert-card.css';
 @import './search-input.css';
+@import './styles/scanlines.css';
+@import './styles/glitch.css';
