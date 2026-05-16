@@ -28,7 +28,14 @@ export interface AlertsParams {
 }
 
 export async function fetchAlerts(params?: AlertsParams): Promise<AlertsResponse> {
-  return apiFetch<AlertsResponse>('/alerts', params as Record<string, string | number>)
+  const raw = await apiFetch<{ alertas: any[]; count: number }>('/alerts/chilecompra', params as Record<string, string | number>)
+  return {
+    count: raw.count,
+    alertas: raw.alertas.map(a => ({
+      ...a,
+      severidad: a.severidad ?? a.severity ?? null,
+    })),
+  }
 }
 
 export async function fetchAlertById(id: string): Promise<Alerta | null> {
