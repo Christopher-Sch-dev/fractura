@@ -1,5 +1,6 @@
 import { type FC, useRef, useEffect } from 'react'
 import type { GraphData, GraphNode } from '../api/graph'
+import type { Alerta } from '../api/alerts'
 
 interface GlobeGraphProps {
   data: GraphData | null
@@ -7,13 +8,15 @@ interface GlobeGraphProps {
   error?: string | null
   width?: number
   height?: number
+  virginiaId?: string
   onNodeClick?: (node: GraphNode) => void
+  onAlertClick?: (a: Alerta) => void
 }
 
 const TIPO_COLORS: Record<string, string> = {
   Organismo: '#00e5ff',
   Empresa: '#e87c0a',
-  Contrato: '#ff1a1a',
+  Contrato: '#f0f0e8',
 }
 
 export const GlobeGraph: FC<GlobeGraphProps> = ({
@@ -22,7 +25,9 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
   error,
   width = 800,
   height = 500,
+  virginiaId,
   onNodeClick,
+  onAlertClick,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const fgRef = useRef<any>(null)
@@ -49,19 +54,35 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
         width,
         height,
         nodeLabel: 'label',
-        nodeColor: (node: any) => TIPO_COLORS[node.tipo] ?? '#f0f0e8',
+        nodeColor: (node: any) => {
+          if (node.id === virginiaId) return '#ff1a1a'
+          return TIPO_COLORS[node.tipo] ?? '#f0f0e8'
+        },
         nodeCanvasObjectMode: () => 'replace',
         nodeCanvasObject: (node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-          const r = Math.max(4, 6 / globalScale)
+          const isVirginia = node.id === virginiaId
+          const baseR = isVirginia ? 8 : node.tipo === 'Contrato' ? 3 : 5
+          const r = Math.max(4, baseR / globalScale)
+          const color = isVirginia ? '#ff1a1a' : (TIPO_COLORS[node.tipo] ?? '#f0f0e8')
+
           ctx.beginPath()
           ctx.arc(node.x ?? 0, node.y ?? 0, r, 0, 2 * Math.PI)
-          ctx.fillStyle = TIPO_COLORS[node.tipo] ?? '#f0f0e8'
+          ctx.fillStyle = color
           ctx.fill()
-          ctx.beginPath()
-          ctx.arc(node.x ?? 0, node.y ?? 0, r + 2 / globalScale, 0, 2 * Math.PI)
-          ctx.strokeStyle = (TIPO_COLORS[node.tipo] ?? '#f0f0e8') + '50'
-          ctx.lineWidth = 1
-          ctx.stroke()
+
+          if (isVirginia) {
+            ctx.beginPath()
+            ctx.arc(node.x ?? 0, node.y ?? 0, r + 3 / globalScale, 0, 2 * Math.PI)
+            ctx.strokeStyle = '#ff1a1a40'
+            ctx.lineWidth = 1.5
+            ctx.stroke()
+          } else {
+            ctx.beginPath()
+            ctx.arc(node.x ?? 0, node.y ?? 0, r + 2 / globalScale, 0, 2 * Math.PI)
+            ctx.strokeStyle = color + '50'
+            ctx.lineWidth = 1
+            ctx.stroke()
+          }
         },
         linkColor: () => 'rgba(0, 229, 255, 0.2)',
         linkWidth: 1,
@@ -81,7 +102,7 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
         fgRef.current = null
       }
     }
-  }, [data, width, height, onNodeClick])
+  }, [data, width, height, virginiaId, onNodeClick])
 
   return (
     <div className="globe-graph">
@@ -98,11 +119,10 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
       <div ref={containerRef} className="globe-graph__canvas" style={{ width, height }} />
 
       <div className="globe-graph__legend">
-        {Object.entries(TIPO_COLORS).map(([tipo, color]) => (
-          <span key={tipo} style={{ color }}>
-            ● {tipo}
-          </span>
-        ))}
+        <span style={{ color: '#00e5ff' }}>● Organismo</span>
+        <span style={{ color: '#e87c0a' }}>● Empresa</span>
+        <span style={{ color: '#f0f0e8' }}>● Contrato</span>
+        {virginiaId && <span style={{ color: '#ff1a1a' }}>● Virginia Reginato</span>}
       </div>
 
       <style>{`
@@ -113,7 +133,7 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
           gap: 0.5rem;
         }
         .globe-graph__canvas {
-          background: rgba(12, 11, 9, 0.5);
+          background: var(--color-bg);
           border: 1px solid rgba(0, 229, 255, 0.15);
           clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
         }
@@ -129,6 +149,7 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
           color: rgba(240, 240, 232, 0.5);
           letter-spacing: 0.1em;
           z-index: 2;
+          border-radius: 0 !important;
         }
         .globe-graph__overlay--error { color: var(--color-alert); }
         .globe-graph__legend {

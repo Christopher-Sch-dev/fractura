@@ -5,30 +5,47 @@ import { AlertTable } from '../components/AlertTable'
 import { GlobeGraph } from '../components/GlobeGraph'
 import { ScanlineOverlay } from '../components/ScanlineOverlay'
 import { GlitchText } from '../components/GlitchText'
+import { AlertDetail } from '../components/AlertDetail'
 import type { Alerta } from '../api/alerts'
 import type { GraphNode } from '../api/graph'
 
-interface DashboardProps {
-  onAlertClick?: (a: Alerta) => void
-  onEntityClick?: (id: string) => void
-}
-
-export const Dashboard: FC<DashboardProps> = ({ onAlertClick, onEntityClick }) => {
+export const Dashboard: FC = () => {
   const [limit] = useState(500)
   const { alertas, loading, error } = useAlerts({ limit })
-  const { graphData, loading: graphLoading, error: graphError } = useGraph({ limit })
+  const [focusNodeId, setFocusNodeId] = useState<string | undefined>()
+  const [selectedAlert, setSelectedAlert] = useState<Alerta | null>(null)
+  const { graphData, loading: graphLoading, error: graphError } = useGraph({ nodeId: focusNodeId, limit })
+
+  const virginiaAnchor = alertas.find(a =>
+    a.empresa_rut?.toLowerCase().includes('reginato') ||
+    a.mensaje?.toLowerCase().includes('viña del mar') ||
+    a.descripcion?.toLowerCase().includes('reginato')
+  )
+
+  const graphWithVirginia = virginiaAnchor && graphData
+    ? {
+        nodes: [
+          ...graphData.nodes,
+          {
+            id: `virginia-${virginiaAnchor.id}`,
+            label: 'VIRGINIA REGINATO',
+            tipo: 'Empresa' as const,
+            isVirginia: true,
+          },
+        ],
+        links: [
+          ...graphData.links,
+        ],
+      }
+    : graphData
 
   return (
     <div className="dashboard">
       <ScanlineOverlay />
 
-      {/* Header */}
       <header className="dashboard__header">
         <div className="dashboard__logo-row">
-          <GlitchText
-            className="dashboard__logo"
-            active={false}
-          >
+          <GlitchText className="dashboard__logo" active={false}>
             FRACTURA
           </GlitchText>
           <span className="dashboard__live-badge">
@@ -36,12 +53,9 @@ export const Dashboard: FC<DashboardProps> = ({ onAlertClick, onEntityClick }) =
             EN VIVO
           </span>
         </div>
-        <p className="dashboard__subtitle">
-          CHILE. DATOS PÚBLICOS. SIN FILTRO.
-        </p>
+        <p className="dashboard__subtitle">CHILE. DATOS PÚBLICOS. SIN FILTRO.</p>
       </header>
 
-      {/* Stats bar */}
       <div className="dashboard__stats">
         <div className="dashboard__stat mono-data">
           <span className="dashboard__stat-value">{alertas.length}</span>
@@ -59,35 +73,43 @@ export const Dashboard: FC<DashboardProps> = ({ onAlertClick, onEntityClick }) =
         </div>
       </div>
 
-      {/* Alerts section */}
       <section className="dashboard__section">
-        <h2 className="dashboard__section-title">
-          ALERTAS
-        </h2>
+        <h2 className="dashboard__section-title">ALERTAS</h2>
         <AlertTable
           alertas={alertas}
           loading={loading}
           error={error}
-          onAlertClick={onAlertClick}
+          onAlertClick={(a) => setSelectedAlert(a)}
         />
       </section>
 
-      {/* Graph section */}
       <section className="dashboard__section">
-        <h2 className="dashboard__section-title">
-          GRAFO DE RELACIONES
-        </h2>
+        <h2 className="dashboard__section-title">GRAFO DE RELACIONES</h2>
         <div className="dashboard__graph-wrapper">
           <GlobeGraph
-            data={graphData}
+            data={graphWithVirginia}
             loading={graphLoading}
             error={graphError}
-            onNodeClick={(node: GraphNode) => {
-              onEntityClick?.(node.id)
-            }}
+            virginiaId={virginiaAnchor ? `virginia-${virginiaAnchor.id}` : undefined}
+            onNodeClick={(node: GraphNode) => setFocusNodeId(node.id)}
+            onAlertClick={(a) => setSelectedAlert(a)}
           />
         </div>
       </section>
+
+      {selectedAlert && (
+        <AlertDetail
+          alerta={selectedAlert}
+          onClose={() => setSelectedAlert(null)}
+          onShowInGraph={() => {
+            const rut = selectedAlert.empresa_rut
+            if (rut) {
+              setFocusNodeId(rut)
+              setSelectedAlert(null)
+            }
+          }}
+        />
+      )}
 
       <style>{`
         .dashboard {
@@ -157,33 +179,11 @@ export const Dashboard: FC<DashboardProps> = ({ onAlertClick, onEntityClick }) =
           border: 1px solid rgba(0, 229, 255, 0.1);
           clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
         }
-        .dashboard__stat {
-          display: flex;
-          flex-direction: column;
-          gap: 0.1rem;
-        }
-        .dashboard__stat-value {
-          font-size: 1.25rem;
-          font-weight: 600;
-          color: var(--color-primary);
-          font-variant-numeric: tabular-nums;
-        }
-        .dashboard__stat-label {
-          font-size: 0.5625rem;
-          letter-spacing: 0.12em;
-          color: rgba(240, 240, 232, 0.4);
-          text-transform: uppercase;
-        }
-        .dashboard__stat-divider {
-          width: 1px;
-          height: 2rem;
-          background: rgba(0, 229, 255, 0.15);
-        }
-        .dashboard__section {
-          display: flex;
-          flex-direction: column;
-          gap: 0.875rem;
-        }
+        .dashboard__stat { display: flex; flex-direction: column; gap: 0.1rem; }
+        .dashboard__stat-value { font-size: 1.25rem; font-weight: 600; color: var(--color-primary); font-variant-numeric: tabular-nums; }
+        .dashboard__stat-label { font-size: 0.5625rem; letter-spacing: 0.12em; color: rgba(240, 240, 232, 0.4); text-transform: uppercase; }
+        .dashboard__stat-divider { width: 1px; height: 2rem; background: rgba(0, 229, 255, 0.15); }
+        .dashboard__section { display: flex; flex-direction: column; gap: 0.875rem; }
         .dashboard__section-title {
           font-family: var(--font-heading);
           font-size: 0.6875rem;
@@ -194,9 +194,7 @@ export const Dashboard: FC<DashboardProps> = ({ onAlertClick, onEntityClick }) =
           padding-bottom: 0.5rem;
           border-bottom: 1px solid rgba(0, 229, 255, 0.12);
         }
-        .dashboard__graph-wrapper {
-          overflow: hidden;
-        }
+        .dashboard__graph-wrapper { overflow: hidden; }
       `}</style>
     </div>
   )

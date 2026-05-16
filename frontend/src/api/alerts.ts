@@ -33,8 +33,7 @@ export async function fetchAlerts(params?: AlertsParams): Promise<AlertsResponse
 
 export async function fetchAlertById(id: string): Promise<Alerta | null> {
   try {
-    const res = await apiFetch<AlertsResponse>('/alerts/chilecompra', { limit: 500 })
-    return res.alertas.find(a => a.id === id) ?? null
+    return await apiFetch<Alerta>(`/alerts/${encodeURIComponent(id)}`)
   } catch {
     return null
   }
