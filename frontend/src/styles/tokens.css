@@ -1,0 +1,21 @@
+:root {
+  --color-bg: #0c0b09;
+  --color-text: #f0f0e8;
+  --color-primary: #00e5ff;
+  --color-alert: #ff1a1a;
+  --color-accent: #e87c0a;
+  --color-critical: #39ff14;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after {
+  border-radius: 0 !important;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+}
