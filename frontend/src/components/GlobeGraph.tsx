@@ -162,50 +162,25 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
       <div ref={containerRef} className="globe-graph__canvas" style={{ width, height }} />
 
       <div className="globe-graph__legend">
-        <span style={{ color: '#00e5ff' }}>■ Organismo</span>
-        <span style={{ color: '#e87c0a' }}>⬡ Empresa</span>
-        <span style={{ color: '#f0f0e8' }}>● Contrato</span>
-        {virginiaId && <span style={{ color: '#ff1a1a' }}>● Virginia Reginato</span>}
+        <span className="globe-graph__legend-item">
+          <span className="globe-graph__legend-dot" style={{ background: '#00e5ff' }} />
+          Organismo
+        </span>
+        <span className="globe-graph__legend-item">
+          <span className="globe-graph__legend-dot" style={{ background: '#e87c0a' }} />
+          Empresa
+        </span>
+        <span className="globe-graph__legend-item">
+          <span className="globe-graph__legend-dot" style={{ background: '#f0f0e8' }} />
+          Contrato
+        </span>
+        {virginiaId && (
+          <span className="globe-graph__legend-item">
+            <span className="globe-graph__legend-dot" style={{ background: '#ff1a1a' }} />
+            Virginia Reginato
+          </span>
+        )}
       </div>
-
-      <style>{`
-        .globe-graph {
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-        .globe-graph__canvas {
-          background: var(--color-bg);
-          border: 1px solid rgba(0, 229, 255, 0.15);
-          clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
-        }
-        .globe-graph__overlay {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(12, 11, 9, 0.7);
-          font-family: var(--font-mono);
-          font-size: 0.8125rem;
-          color: rgba(240, 240, 232, 0.5);
-          letter-spacing: 0.1em;
-          z-index: 2;
-          border-radius: 0 !important;
-        }
-        .globe-graph__overlay--error { color: var(--color-alert); }
-        .globe-graph__legend {
-          display: flex;
-          gap: 1.5rem;
-          justify-content: center;
-          font-size: 0.6875rem;
-          font-family: var(--font-heading);
-          letter-spacing: 0.07em;
-          text-transform: uppercase;
-          padding: 0.35rem 0;
-        }
-      `}</style>
     </div>
   )
 }
