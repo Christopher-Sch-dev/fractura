@@ -6,10 +6,29 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': {
+      '/alerts': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/graph': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/entity': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/seed': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/detect': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/health': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
       },
     },
   },

@@ -1,20 +1,30 @@
-import { type FC, useState } from 'react'
+import { type FC, useState, useEffect } from 'react'
 import { useAlerts } from '../hooks/useAlerts'
 import { useGraph } from '../hooks/useGraph'
 import { AlertTable } from '../components/AlertTable'
 import { GlobeGraph } from '../components/GlobeGraph'
-import { ScanlineOverlay } from '../components/ScanlineOverlay'
-import { GlitchText } from '../components/GlitchText'
 import { AlertDetail } from '../components/AlertDetail'
 import type { Alerta } from '../api/alerts'
 import type { GraphNode } from '../api/graph'
 
-const FOOTER_CARDS = [
-  { label: 'EXPLORAR COMUNA' },
-  { label: 'MAPA DE CONEXIONES' },
-  { label: 'INVESTIGACIONES' },
-  { label: 'METODOLOGÍA' },
-]
+const FOOTER_LABELS = ['EXPLORAR COMUNA', 'MAPA DE CONEXIONES', 'INVESTIGACIONES', 'METODOLOGÍA']
+
+function LiveClock() {
+  const [time, setTime] = useState('')
+  useEffect(() => {
+    const update = () => {
+      const now = new Date()
+      const pad = (n: number) => String(n).padStart(2, '0')
+      const date = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`
+      const clock = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
+      setTime(`${date} — ${clock} — EN VIVO`)
+    }
+    update()
+    const id = setInterval(update, 1000)
+    return () => clearInterval(id)
+  }, [])
+  return <span className="dashboard__clock mono-data">{time}</span>
+}
 
 export const Dashboard: FC = () => {
   const [limit] = useState(500)
@@ -23,87 +33,49 @@ export const Dashboard: FC = () => {
   const [selectedAlert, setSelectedAlert] = useState<Alerta | null>(null)
   const { graphData, loading: graphLoading, error: graphError } = useGraph({ nodeId: focusNodeId, limit })
 
-  const virginiaAnchor = alertas.find(a =>
-    a.empresa_rut?.toLowerCase().includes('reginato') ||
-    a.mensaje?.toLowerCase().includes('viña del mar') ||
-    a.descripcion?.toLowerCase().includes('reginato')
-  )
-
-  const graphWithVirginia = virginiaAnchor && graphData
-    ? {
-        nodes: [
-          ...graphData.nodes,
-          {
-            id: `virginia-${virginiaAnchor.id}`,
-            label: 'VIRGINIA REGINATO',
-            tipo: 'Empresa' as const,
-            isVirginia: true,
-          },
-        ],
-        links: [...graphData.links],
-      }
-    : graphData
-
-  const today = new Date().toLocaleDateString('es-CL', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).toUpperCase()
-
-  const scrollToAlertas = () => {
-    document.getElementById('alertas')?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   const orgCount = graphData?.nodes.filter(n => n.tipo === 'Organismo').length ?? 0
   const empCount = graphData?.nodes.filter(n => n.tipo === 'Empresa').length ?? 0
   const linkCount = graphData?.links.length ?? 0
 
   return (
     <div className="dashboard">
-      <ScanlineOverlay />
-
+      {/* HEADER */}
       <header className="dashboard__header">
         <div className="dashboard__logo-row">
-          <GlitchText className="dashboard__logo" active={false}>
-            FRACTURA
-          </GlitchText>
-          <span className="dashboard__live-badge">
+          <div className="dashboard__logo">FRACTURA</div>
+          <div className="dashboard__live-badge">
             <span className="dashboard__live-dot" />
-            EN VIVO
-          </span>
-          <span className="dashboard__date mono-data">{today}</span>
+            LIVE
+          </div>
+          <LiveClock />
         </div>
       </header>
 
+      {/* BODY */}
       <div className="dashboard__body">
-        {/* LEFT — Hero + CTA */}
+        {/* LEFT — Hero + Alert list */}
         <section className="dashboard__left">
-          <h1 className="dashboard__headline">
-            CHILE NO TIENE FALTA DE DATOS.<br />
-            TIENE EXCESO DE <span className="dashboard__headline--accent">SILENCIO.</span>
-          </h1>
-          <p className="dashboard__desc">
-            FRACTURA identifica patrones de fraccionamiento,
-            colusión y redes de interés en las contrataciones públicas.
-          </p>
-          <button className="dashboard__cta" onClick={scrollToAlertas}>
-            EXPLORAR PATRONES →
-          </button>
-        </section>
-
-        {/* CENTER — Graph + Table */}
-        <section className="dashboard__center">
-          <div className="dashboard__graph-wrapper">
-            <GlobeGraph
-              data={graphWithVirginia}
-              loading={graphLoading}
-              error={graphError}
-              virginiaId={virginiaAnchor ? `virginia-${virginiaAnchor.id}` : undefined}
-              onNodeClick={(node: GraphNode) => setFocusNodeId(node.id)}
-              onAlertClick={(a) => setSelectedAlert(a)}
-            />
+          <div className="dashboard__hero">
+            <h1 className="dashboard__headline">
+              CHILE NO TIENE FALTA DE DATOS.
+              <br />
+              TIENE EXCESO DE{' '}
+              <span className="dashboard__headline--accent">SILENCIO.</span>
+            </h1>
+            <p className="dashboard__desc">
+              FRACTURA identifica patrones de fraccionamiento,
+              colusion y redes de interes en las contrataciones publicas.
+            </p>
+            <button
+              className="dashboard__cta"
+              onClick={() => document.getElementById('alertas')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              EXPLORAR PATRONES
+              <span className="dashboard__cta-arrow"> →</span>
+            </button>
           </div>
-          <div className="dashboard__table-wrapper" id="alertas">
+
+          <div className="dashboard__alert-list" id="alertas">
             <AlertTable
               alertas={alertas}
               loading={loading}
@@ -113,7 +85,20 @@ export const Dashboard: FC = () => {
           </div>
         </section>
 
-        {/* RIGHT — Stats sidebar */}
+        {/* CENTER — Graph */}
+        <section className="dashboard__center">
+          <div className="dashboard__graph-wrapper">
+            <GlobeGraph
+              data={graphData}
+              loading={graphLoading}
+              error={graphError}
+              onNodeClick={(node: GraphNode) => setFocusNodeId(node.id)}
+              onAlertClick={(a) => setSelectedAlert(a)}
+            />
+          </div>
+        </section>
+
+        {/* RIGHT — Stats */}
         <aside className="dashboard__right">
           <div className="stat-block">
             <span className="stat-block__value">{alertas.length}</span>
@@ -134,14 +119,17 @@ export const Dashboard: FC = () => {
         </aside>
       </div>
 
+      {/* FOOTER */}
       <footer className="dashboard__footer">
-        {FOOTER_CARDS.map(card => (
-          <div key={card.label} className="footer-card">
-            {card.label}
+        {FOOTER_LABELS.map((label, i) => (
+          <div key={i} className="footer-card">
+            {label}
+            {i < FOOTER_LABELS.length - 1 && <span className="footer-card__arrow"> →</span>}
           </div>
         ))}
       </footer>
 
+      {/* ALERT DETAIL OVERLAY */}
       {selectedAlert && (
         <AlertDetail
           alerta={selectedAlert}
@@ -154,7 +142,7 @@ export const Dashboard: FC = () => {
             }
           }}
         />
-)}
+      )}
     </div>
   )
 }

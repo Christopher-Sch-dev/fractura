@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { fetchAlerts } from '../api/alerts'
 import type { Alerta } from '../api/alerts'
 
 interface UseAlertsOptions {
@@ -23,8 +24,11 @@ export function useAlerts(opts: UseAlertsOptions = {}): UseAlertsReturn {
     setLoading(true)
     setError(null)
     try {
-      const { fetchAlerts } = await import('../api/alerts')
-      const res = await fetchAlerts({ patron: opts.patron as any, limit: opts.limit, fuente: opts.fuente })
+      const res = await fetchAlerts({
+        patron: opts.patron as any,
+        limit: opts.limit,
+        fuente: opts.fuente,
+      })
       setAlertas(res.alertas)
     } catch (e: any) {
       setError(e.message ?? 'Error desconocido')

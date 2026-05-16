@@ -22,66 +22,53 @@ body {
   overflow-x: hidden;
 }
 
-/* Tabular nums para datos — los montos se leen como señal */
+/* Noise grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: var(--noise-opacity);
+}
+
+/* Vignette */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9997;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%);
+}
+
 .mono-data {
   font-variant-numeric: tabular-nums;
 }
 
-/* Scanlines overlay */
-body::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 9999;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, var(--scanline-opacity)) 2px,
-    rgba(0, 0, 0, var(--scanline-opacity)) 3px
-  );
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-primary-40); }
 
-/* Scrollbar estilo terminal */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-bg);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  opacity: 0.5;
-}
-
-/* Focus visible — sin outline genérico */
 :focus-visible {
   outline: 1px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-/* Links */
 a {
   color: var(--color-primary);
   text-decoration: none;
 }
-a:hover {
-  text-decoration: underline;
-}
+a:hover { text-decoration: underline; }
 
-/* Headers */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 600;
   line-height: 1.2;
 }
 
-/* Botones base */
 button {
   font-family: var(--font-mono);
   font-size: 0.8125rem;
@@ -91,13 +78,12 @@ button {
   color: inherit;
 }
 
-/* Input base */
 input, textarea, select {
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   background: transparent;
   color: var(--color-text);
-  border: 1px solid rgba(0, 229, 255, 0.3);
+  border: 1px solid var(--color-primary-20);
   padding: 0.5rem 0.75rem;
   outline: none;
   transition: border-color 0.15s;
@@ -106,7 +92,6 @@ input:focus, textarea:focus, select:focus {
   border-color: var(--color-primary);
 }
 
-/* Tablas */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -114,7 +99,7 @@ table {
 th, td {
   text-align: left;
   padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+  border-bottom: 1px solid var(--color-primary-15);
 }
 th {
   font-family: var(--font-heading);
@@ -122,32 +107,4 @@ th {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-primary);
-}
-
-/* Status badges */
-.badge {
-  display: inline-block;
-  padding: 0.15rem 0.5rem;
-  font-size: 0.6875rem;
-  font-family: var(--font-heading);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
-}
-.badge--high, .badge--critical {
-  background: var(--color-alert);
-  color: var(--color-bg);
-}
-.badge--medium {
-  background: var(--color-accent);
-  color: var(--color-bg);
-}
-.badge--low {
-  background: var(--color-primary);
-  color: var(--color-bg);
-}
-
-/* No border-radius anywhere — verification class */
-.no-radius {
-  border-radius: 0 !important;
 }

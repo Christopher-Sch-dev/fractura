@@ -1,26 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
 :root {
---color-bg: #0c0b09;
-  --color-surface: #141310;
-  --color-bg-overlay: rgba(12, 11, 9, 0.6);
-  --color-primary: #00e5ff;
-  --color-primary-20: rgba(0, 229, 255, 0.2);
-  --color-alert: #ff1a1a;
-  --color-accent: #e87c0a;
-  --color-critical: #39ff14;
-  --scanline-opacity: 0.04;
+  --color-bg: #050505;
+  --color-surface: #0A0A0A;
+  --color-surface-2: #0F0F0F;
+  --color-text: #A0A0A0;
+  --color-text-2: #555555;
+  --color-text-bright: #D0D0D0;
+  --color-primary: #00E5FF;
+  --color-primary-glow: rgba(0, 229, 255, 0.4);
   --color-primary-10: rgba(0, 229, 255, 0.1);
   --color-primary-15: rgba(0, 229, 255, 0.15);
   --color-primary-20: rgba(0, 229, 255, 0.2);
-  --color-text-40: rgba(240, 240, 232, 0.4);
-  --color-bg-60: rgba(12, 11, 9, 0.6);
-  --scanline-opacity: 0.04;
-  --noise-opacity: 0.03;
-  --glitch-offset: 1.5px;
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --color-primary-40: rgba(0, 229, 255, 0.4);
+  --color-alert: #FF2A2A;
+  --color-alert-glow: rgba(255, 42, 42, 0.35);
+  --color-accent: #E87C0A;
+  --color-accent-glow: rgba(232, 124, 10, 0.3);
+  --color-critical: #39FF14;
+  --scanline-opacity: 0.035;
+  --noise-opacity: 0.025;
+  --glitch-offset: 2px;
+
+  --font-heading: 'Share Tech Mono', 'Courier New', monospace;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  --glow-primary: 0 0 8px var(--color-primary-glow), 0 0 20px rgba(0, 229, 255, 0.15);
+  --glow-alert: 0 0 8px var(--color-alert-glow), 0 0 20px rgba(255, 42, 42, 0.15);
 }
 
 *, *::before, *::after {
+  box-sizing: border-box;
   border-radius: 0 !important;
 }
 
@@ -29,4 +39,6 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }

@@ -8,21 +8,14 @@ interface GlobeGraphProps {
   error?: string | null
   width?: number
   height?: number
-  virginiaId?: string
   onNodeClick?: (node: GraphNode) => void
   onAlertClick?: (a: Alerta) => void
 }
 
-function drawHexagon(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number): void {
-  ctx.beginPath()
-  for (let i = 0; i < 6; i++) {
-    const angle = (Math.PI / 3) * i - Math.PI / 6
-    const x = cx + r * Math.cos(angle)
-    const y = cy + r * Math.sin(angle)
-    if (i === 0) ctx.moveTo(x, y)
-    else ctx.lineTo(x, y)
-  }
-  ctx.closePath()
+const NODE_COLORS = {
+  Organismo: '#00E5FF',
+  Empresa: '#E87C0A',
+  Contrato: '#A0A0A0',
 }
 
 export const GlobeGraph: FC<GlobeGraphProps> = ({
@@ -31,7 +24,6 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
   error,
   width = 800,
   height = 500,
-  virginiaId,
   onNodeClick,
   onAlertClick,
 }) => {
@@ -47,6 +39,7 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
 
       if (fgRef.current) {
         fgRef.current._destructor?.()
+        fgRef.current = null
       }
 
       const graphData = {
@@ -60,79 +53,101 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
         width,
         height,
         nodeLabel: 'label',
+        backgroundColor: '#050505',
+
         nodeColor: (node: any) => {
-          if (node.id === virginiaId) return '#ff1a1a'
           switch (node.tipo) {
-            case 'Organismo': return '#00e5ff'
-            case 'Empresa': return '#e87c0a'
-            case 'Contrato': return '#f0f0e8'
-            default: return '#f0f0e8'
+            case 'Organismo': return '#00E5FF'
+            case 'Empresa': return '#E87C0A'
+            case 'Contrato': return '#555555'
+            default: return '#A0A0A0'
           }
         },
+
         nodeCanvasObjectMode: () => 'replace',
+
         nodeCanvasObject: (node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-          const isVirginia = node.id === virginiaId
-          let baseR: number
-          let color: string
+          const color = NODE_COLORS[node.tipo as keyof typeof NODE_COLORS] ?? '#A0A0A0'
+          const isOrganismo = node.tipo === 'Organismo'
+          const isEmpresa = node.tipo === 'Empresa'
 
-          if (isVirginia) {
-            baseR = 10
-            color = '#ff1a1a'
-          } else {
-            switch (node.tipo) {
-              case 'Organismo': baseR = 5; color = '#00e5ff'; break
-              case 'Empresa': baseR = 5; color = '#e87c0a'; break
-              case 'Contrato': baseR = 3; color = '#f0f0e8'; break
-              default: baseR = 4; color = '#f0f0e8'
-            }
-          }
-
-          const r = Math.max(4, baseR / globalScale)
+          const baseSize = isOrganismo ? 6 : isEmpresa ? 5 : 3
+          const r = Math.max(3, baseSize / globalScale)
           const cx = node.x ?? 0
           const cy = node.y ?? 0
 
-          if (isVirginia) {
-            ctx.beginPath()
-            ctx.arc(cx, cy, r, 0, 2 * Math.PI)
-            ctx.fillStyle = color
-            ctx.fill()
-            ctx.beginPath()
-            ctx.arc(cx, cy, r + 3 / globalScale, 0, 2 * Math.PI)
-            ctx.strokeStyle = '#ff1a1a40'
-            ctx.lineWidth = 1.5
-            ctx.stroke()
-          } else if (node.tipo === 'Organismo') {
-            ctx.fillStyle = color
+          // Glow for Organismo (primary) nodes
+          if (isOrganismo) {
+            ctx.shadowBlur = 12
+            ctx.shadowColor = 'rgba(0, 229, 255, 0.6)'
+          } else if (isEmpresa) {
+            ctx.shadowBlur = 8
+            ctx.shadowColor = 'rgba(232, 124, 10, 0.5)'
+          }
+
+          ctx.fillStyle = color
+
+          if (isOrganismo) {
+            // Square
             ctx.fillRect(cx - r, cy - r, r * 2, r * 2)
-            ctx.strokeStyle = color + '50'
-            ctx.lineWidth = 1 / globalScale
-            ctx.strokeRect(cx - r - 2 / globalScale, cy - r - 2 / globalScale, (r + 2 / globalScale) * 2, (r + 2 / globalScale) * 2)
-          } else if (node.tipo === 'Empresa') {
-            ctx.fillStyle = color
-            drawHexagon(ctx, cx, cy, r)
+            ctx.shadowBlur = 0
+            ctx.strokeStyle = 'rgba(0, 229, 255, 0.3)'
+            ctx.lineWidth = 1.5 / globalScale
+            ctx.strokeRect(cx - r - 3 / globalScale, cy - r - 3 / globalScale, (r + 3 / globalScale) * 2, (r + 3 / globalScale) * 2)
+          } else if (isEmpresa) {
+            // Hexagon
+            ctx.beginPath()
+            for (let i = 0; i < 6; i++) {
+              const angle = (Math.PI / 3) * i - Math.PI / 6
+              const x = cx + r * Math.cos(angle)
+              const y = cy + r * Math.sin(angle)
+              i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+            }
+            ctx.closePath()
             ctx.fill()
-            ctx.strokeStyle = color + '50'
+            ctx.shadowBlur = 0
+            ctx.strokeStyle = 'rgba(232, 124, 10, 0.3)'
             ctx.lineWidth = 1 / globalScale
-            drawHexagon(ctx, cx, cy, r + 2 / globalScale)
+            ctx.beginPath()
+            for (let i = 0; i < 6; i++) {
+              const angle = (Math.PI / 3) * i - Math.PI / 6
+              const x = cx + (r + 3 / globalScale) * Math.cos(angle)
+              const y = cy + (r + 3 / globalScale) * Math.sin(angle)
+              i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+            }
+            ctx.closePath()
             ctx.stroke()
           } else {
+            // Circle for Contrato
             ctx.beginPath()
             ctx.arc(cx, cy, r, 0, 2 * Math.PI)
-            ctx.fillStyle = color
             ctx.fill()
-            ctx.strokeStyle = color + '50'
-            ctx.lineWidth = 1 / globalScale
+            ctx.shadowBlur = 0
+            ctx.strokeStyle = 'rgba(160, 160, 160, 0.25)'
+            ctx.lineWidth = 0.5 / globalScale
             ctx.beginPath()
             ctx.arc(cx, cy, r + 2 / globalScale, 0, 2 * Math.PI)
             ctx.stroke()
           }
+
+          // Label for Organismo nodes only
+          if (isOrganismo && globalScale >= 0.8) {
+            ctx.font = `${Math.max(9, 11 / globalScale)}px 'JetBrains Mono', monospace`
+            ctx.fillStyle = 'rgba(0, 229, 255, 0.85)'
+            ctx.textAlign = 'center'
+            ctx.fillText(node.label, cx, cy + r + 12 / globalScale)
+          }
+
+          ctx.shadowBlur = 0
         },
-        linkColor: () => 'var(--color-primary-20)',
-        linkWidth: 1,
+
+        linkColor: () => 'rgba(0, 229, 255, 0.12)',
+        linkWidth: 0.8,
+        linkDirectionalParticles: 0,
+
         onNodeClick: (node: any) => {
           onNodeClick?.(node as GraphNode)
         },
-        backgroundColor: 'transparent',
       })
 
       fgRef.current = fg
@@ -145,41 +160,47 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
         fgRef.current = null
       }
     }
-  }, [data, width, height, virginiaId, onNodeClick])
+  }, [data, width, height, onNodeClick])
 
   return (
-    <div className="globe-graph">
+    <div className="globe-graph" style={{ position: 'relative', width, height }}>
       {loading && (
-        <div className="globe-graph__overlay">
-          <span className="mono-data">CARGANDO GRAFO...</span>
+        <div className="globe-graph__overlay globe-graph__overlay--loading">
+          <span className="globe-graph__loading-text mono-data">CARGANDO GRAFO...</span>
         </div>
       )}
       {error && (
         <div className="globe-graph__overlay globe-graph__overlay--error">
-          ERROR: {error}
+          <span className="globe-graph__error-text">ERROR: {error}</span>
+        </div>
+      )}
+      {!data && !loading && (
+        <div className="globe-graph__overlay globe-graph__overlay--empty">
+          <span className="globe-graph__empty-text mono-data">SIN DATOS — EJECUTA /seed Y /detect</span>
         </div>
       )}
       <div ref={containerRef} className="globe-graph__canvas" style={{ width, height }} />
 
+      {/* Legend */}
       <div className="globe-graph__legend">
-        <span className="globe-graph__legend-item">
-          <span className="globe-graph__legend-dot" style={{ background: '#00e5ff' }} />
+        <div className="globe-graph__legend-item">
+          <svg width="10" height="10" viewBox="0 0 10 10">
+            <rect x="0" y="0" width="10" height="10" fill="#00E5FF" />
+          </svg>
           Organismo
-        </span>
-        <span className="globe-graph__legend-item">
-          <span className="globe-graph__legend-dot" style={{ background: '#e87c0a' }} />
+        </div>
+        <div className="globe-graph__legend-item">
+          <svg width="12" height="10" viewBox="0 0 12 10">
+            <polygon points="6,0 12,2.5 12,7.5 6,10 0,7.5 0,2.5" fill="#E87C0A" />
+          </svg>
           Empresa
-        </span>
-        <span className="globe-graph__legend-item">
-          <span className="globe-graph__legend-dot" style={{ background: '#f0f0e8' }} />
+        </div>
+        <div className="globe-graph__legend-item">
+          <svg width="10" height="10" viewBox="0 0 10 10">
+            <circle cx="5" cy="5" r="4" fill="#A0A0A0" />
+          </svg>
           Contrato
-        </span>
-        {virginiaId && (
-          <span className="globe-graph__legend-item">
-            <span className="globe-graph__legend-dot" style={{ background: '#ff1a1a' }} />
-            Virginia Reginato
-          </span>
-        )}
+        </div>
       </div>
     </div>
   )

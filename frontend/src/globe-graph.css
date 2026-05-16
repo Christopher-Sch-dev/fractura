@@ -1,18 +1,6 @@
-/* ============================================
-   GLOBE GRAPH — Transparent canvas overlay
-   ============================================ */
-
 .globe-graph {
+  background: #050505;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.globe-graph__canvas {
-  background: transparent;
-  border: 1px solid rgba(0, 229, 255, 0.15);
-  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
 }
 
 .globe-graph__overlay {
@@ -21,38 +9,75 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(12, 11, 9, 0.7);
+  z-index: 10;
+}
+
+.globe-graph__overlay--loading {
+  background: rgba(5, 5, 5, 0.7);
+}
+
+.globe-graph__loading-text {
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  color: rgba(240, 240, 232, 0.5);
-  letter-spacing: 0.1em;
-  z-index: 2;
-  border-radius: 0 !important;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  animation: pulse-text 1.5s infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 .globe-graph__overlay--error {
-  color: var(--color-alert);
+  background: rgba(5, 5, 5, 0.8);
 }
 
-.globe-graph__legend {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  font-size: 0.6875rem;
-  font-family: var(--font-heading);
-  letter-spacing: 0.07em;
+.globe-graph__error-text {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--color-alert);
   text-transform: uppercase;
-  padding: 0.35rem 0;
+}
+
+.globe-graph__overlay--empty {
+  background: rgba(5, 5, 5, 0.5);
+}
+
+.globe-graph__empty-text {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  color: var(--color-text-2);
+  text-transform: uppercase;
+}
+
+.globe-graph__canvas {
+  display: block;
+}
+
+/* Legend */
+.globe-graph__legend {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(5, 5, 5, 0.75);
+  border: 1px solid var(--color-primary-20);
+  padding: 8px 12px;
 }
 
 .globe-graph__legend-item {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-}
-
-.globe-graph__legend-dot {
-  width: 8px;
-  height: 8px;
-  display: inline-block;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text);
 }

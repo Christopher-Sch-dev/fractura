@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
+import { fetchGraph } from '../api/graph'
 import type { GraphData } from '../api/graph'
 
 interface UseGraphOptions {
@@ -17,10 +18,7 @@ export function useGraph(opts: UseGraphOptions = {}) {
     setLoading(true)
     setError(null)
 
-    import('../api/graph')
-      .then(({ fetchGraph }) =>
-        fetchGraph(opts.nodeId, opts.limit ?? 200, opts.fuente)
-      )
+    fetchGraph(opts.nodeId, opts.limit ?? 200, opts.fuente)
       .then(res => {
         if (!cancelled) {
           setData(res)
@@ -34,18 +32,8 @@ export function useGraph(opts: UseGraphOptions = {}) {
         }
       })
 
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [opts.nodeId, opts.limit, opts.fuente])
 
-  const graphData = useMemo(() => {
-    if (!data) return null
-    return {
-      nodes: data.nodes.map(n => ({ ...n })),
-      links: data.links.map(l => ({ ...l })),
-    }
-  }, [data])
-
-  return { graphData, loading, error }
+  return { graphData: data, loading, error }
 }
