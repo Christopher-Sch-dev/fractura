@@ -9,6 +9,13 @@ import { AlertDetail } from '../components/AlertDetail'
 import type { Alerta } from '../api/alerts'
 import type { GraphNode } from '../api/graph'
 
+const FOOTER_CARDS = [
+  { label: 'EXPLORAR COMUNA' },
+  { label: 'MAPA DE CONEXIONES' },
+  { label: 'INVESTIGACIONES' },
+  { label: 'METODOLOGÍA' },
+]
+
 export const Dashboard: FC = () => {
   const [limit] = useState(500)
   const { alertas, loading, error } = useAlerts({ limit })
@@ -33,11 +40,23 @@ export const Dashboard: FC = () => {
             isVirginia: true,
           },
         ],
-        links: [
-          ...graphData.links,
-        ],
+        links: [...graphData.links],
       }
     : graphData
+
+  const today = new Date().toLocaleDateString('es-CL', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).toUpperCase()
+
+  const scrollToAlertas = () => {
+    document.getElementById('alertas')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const orgCount = graphData?.nodes.filter(n => n.tipo === 'Organismo').length ?? 0
+  const empCount = graphData?.nodes.filter(n => n.tipo === 'Empresa').length ?? 0
+  const linkCount = graphData?.links.length ?? 0
 
   return (
     <div className="dashboard">
@@ -52,50 +71,76 @@ export const Dashboard: FC = () => {
             <span className="dashboard__live-dot" />
             EN VIVO
           </span>
+          <span className="dashboard__date mono-data">{today}</span>
         </div>
-        <p className="dashboard__subtitle">CHILE. DATOS PÚBLICOS. SIN FILTRO.</p>
       </header>
 
-      <div className="dashboard__stats">
-        <div className="dashboard__stat mono-data">
-          <span className="dashboard__stat-value">{alertas.length}</span>
-          <span className="dashboard__stat-label">ALERTAS ACTIVAS</span>
-        </div>
-        <div className="dashboard__stat-divider" />
-        <div className="dashboard__stat mono-data">
-          <span className="dashboard__stat-value">{graphData?.nodes.length ?? 0}</span>
-          <span className="dashboard__stat-label">NODOS EN GRAFO</span>
-        </div>
-        <div className="dashboard__stat-divider" />
-        <div className="dashboard__stat mono-data">
-          <span className="dashboard__stat-value">{graphData?.links.length ?? 0}</span>
-          <span className="dashboard__stat-label">CONEXIONES</span>
-        </div>
+      <div className="dashboard__body">
+        {/* LEFT — Hero + CTA */}
+        <section className="dashboard__left">
+          <h1 className="dashboard__headline">
+            CHILE NO TIENE FALTA DE DATOS.<br />
+            TIENE EXCESO DE <span className="dashboard__headline--accent">SILENCIO.</span>
+          </h1>
+          <p className="dashboard__desc">
+            FRACTURA identifica patrones de fraccionamiento,
+            colusión y redes de interés en las contrataciones públicas.
+          </p>
+          <button className="dashboard__cta" onClick={scrollToAlertas}>
+            EXPLORAR PATRONES →
+          </button>
+        </section>
+
+        {/* CENTER — Graph + Table */}
+        <section className="dashboard__center">
+          <div className="dashboard__graph-wrapper">
+            <GlobeGraph
+              data={graphWithVirginia}
+              loading={graphLoading}
+              error={graphError}
+              virginiaId={virginiaAnchor ? `virginia-${virginiaAnchor.id}` : undefined}
+              onNodeClick={(node: GraphNode) => setFocusNodeId(node.id)}
+              onAlertClick={(a) => setSelectedAlert(a)}
+            />
+          </div>
+          <div className="dashboard__table-wrapper" id="alertas">
+            <AlertTable
+              alertas={alertas}
+              loading={loading}
+              error={error}
+              onAlertClick={(a) => setSelectedAlert(a)}
+            />
+          </div>
+        </section>
+
+        {/* RIGHT — Stats sidebar */}
+        <aside className="dashboard__right">
+          <div className="stat-block">
+            <span className="stat-block__value">{alertas.length}</span>
+            <span className="stat-block__label">ALERTAS ACTIVAS</span>
+          </div>
+          <div className="stat-block">
+            <span className="stat-block__value">{orgCount}</span>
+            <span className="stat-block__label">ORGANISMOS</span>
+          </div>
+          <div className="stat-block">
+            <span className="stat-block__value">{empCount}</span>
+            <span className="stat-block__label">EMPRESAS</span>
+          </div>
+          <div className="stat-block">
+            <span className="stat-block__value">{linkCount}</span>
+            <span className="stat-block__label">CONEXIONES</span>
+          </div>
+        </aside>
       </div>
 
-      <section className="dashboard__section">
-        <h2 className="dashboard__section-title">ALERTAS</h2>
-        <AlertTable
-          alertas={alertas}
-          loading={loading}
-          error={error}
-          onAlertClick={(a) => setSelectedAlert(a)}
-        />
-      </section>
-
-      <section className="dashboard__section">
-        <h2 className="dashboard__section-title">GRAFO DE RELACIONES</h2>
-        <div className="dashboard__graph-wrapper">
-          <GlobeGraph
-            data={graphWithVirginia}
-            loading={graphLoading}
-            error={graphError}
-            virginiaId={virginiaAnchor ? `virginia-${virginiaAnchor.id}` : undefined}
-            onNodeClick={(node: GraphNode) => setFocusNodeId(node.id)}
-            onAlertClick={(a) => setSelectedAlert(a)}
-          />
-        </div>
-      </section>
+      <footer className="dashboard__footer">
+        {FOOTER_CARDS.map(card => (
+          <div key={card.label} className="footer-card">
+            {card.label}
+          </div>
+        ))}
+      </footer>
 
       {selectedAlert && (
         <AlertDetail
@@ -113,18 +158,20 @@ export const Dashboard: FC = () => {
 
       <style>{`
         .dashboard {
-          min-height: 100vh;
-          padding: 1.5rem 2rem;
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
-          max-width: 1400px;
+          min-height: 100vh;
+          max-width: 1600px;
           margin: 0 auto;
+          padding: 1.25rem 1.5rem;
+          gap: 0;
         }
         .dashboard__header {
           display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
+          align-items: center;
+          padding-bottom: 1rem;
+          border-bottom: 1px solid rgba(0, 229, 255, 0.08);
+          margin-bottom: 0;
         }
         .dashboard__logo-row {
           display: flex;
@@ -133,7 +180,7 @@ export const Dashboard: FC = () => {
         }
         .dashboard__logo {
           font-family: var(--font-display);
-          font-size: 3rem;
+          font-size: 2.5rem;
           color: var(--color-primary);
           letter-spacing: 0.05em;
           line-height: 1;
@@ -143,7 +190,7 @@ export const Dashboard: FC = () => {
           align-items: center;
           gap: 0.4rem;
           font-family: var(--font-heading);
-          font-size: 0.6875rem;
+          font-size: 0.625rem;
           font-weight: 600;
           letter-spacing: 0.1em;
           color: var(--color-critical);
@@ -153,48 +200,174 @@ export const Dashboard: FC = () => {
           clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 0 100%);
         }
         .dashboard__live-dot {
-          width: 6px;
-          height: 6px;
+          width: 5px;
+          height: 5px;
           background: var(--color-critical);
           border-radius: 0;
           animation: pulse-dot 1.5s infinite;
         }
         @keyframes pulse-dot {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
+          50% { opacity: 0.2; }
         }
-        .dashboard__subtitle {
-          font-family: var(--font-mono);
-          font-size: 0.6875rem;
-          letter-spacing: 0.15em;
-          color: rgba(240, 240, 232, 0.4);
+        .dashboard__date {
+          font-size: 0.6rem;
+          letter-spacing: 0.1em;
+          color: rgba(240, 240, 232, 0.3);
           text-transform: uppercase;
         }
-        .dashboard__stats {
+        .dashboard__body {
+          display: grid;
+          grid-template-columns: 30% 1fr 25%;
+          min-height: 80vh;
+          border: 1px solid rgba(0, 229, 255, 0.08);
+          border-top: none;
+        }
+        .dashboard__left {
+          padding: 2.5rem 2rem;
+          border-right: 1px solid rgba(0, 229, 255, 0.08);
           display: flex;
-          align-items: center;
+          flex-direction: column;
           gap: 1.5rem;
-          padding: 0.75rem 1rem;
-          background: var(--color-bg-overlay);
-          border: 1px solid rgba(0, 229, 255, 0.1);
-          clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+          justify-content: center;
         }
-        .dashboard__stat { display: flex; flex-direction: column; gap: 0.1rem; }
-        .dashboard__stat-value { font-size: 1.25rem; font-weight: 600; color: var(--color-primary); font-variant-numeric: tabular-nums; }
-        .dashboard__stat-label { font-size: 0.5625rem; letter-spacing: 0.12em; color: rgba(240, 240, 232, 0.4); text-transform: uppercase; }
-        .dashboard__stat-divider { width: 1px; height: 2rem; background: rgba(0, 229, 255, 0.15); }
-        .dashboard__section { display: flex; flex-direction: column; gap: 0.875rem; }
-        .dashboard__section-title {
-          font-family: var(--font-heading);
-          font-size: 0.6875rem;
-          font-weight: 700;
-          letter-spacing: 0.15em;
+        .dashboard__headline {
+          font-family: var(--font-display);
+          font-size: clamp(1.6rem, 2.2vw, 2.6rem);
+          line-height: 1.15;
+          color: var(--color-text);
           text-transform: uppercase;
-          color: var(--color-primary);
-          padding-bottom: 0.5rem;
-          border-bottom: 1px solid rgba(0, 229, 255, 0.12);
+          margin: 0;
         }
-        .dashboard__graph-wrapper { overflow: hidden; }
+        .dashboard__headline--accent {
+          color: var(--color-primary);
+        }
+        .dashboard__desc {
+          font-family: var(--font-mono);
+          font-size: 0.7rem;
+          line-height: 1.7;
+          color: rgba(240, 240, 232, 0.5);
+          letter-spacing: 0.03em;
+          margin: 0;
+        }
+        .dashboard__cta {
+          align-self: flex-start;
+          padding: 0.6rem 1.2rem;
+          background: transparent;
+          border: 1px solid rgba(0, 229, 255, 0.35);
+          color: var(--color-primary);
+          font-family: var(--font-mono);
+          font-size: 0.7rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          cursor: pointer;
+          clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+          transition: box-shadow 180ms ease, border-color 180ms ease;
+        }
+        .dashboard__cta:hover {
+          border-color: var(--color-primary);
+          box-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
+        }
+        .dashboard__center {
+          display: flex;
+          flex-direction: column;
+          border-right: 1px solid rgba(0, 229, 255, 0.08);
+        }
+        .dashboard__graph-wrapper {
+          flex: 1;
+          min-height: 380px;
+          border-bottom: 1px solid rgba(0, 229, 255, 0.08);
+        }
+        .dashboard__table-wrapper {
+          padding: 0.5rem 0;
+        }
+        .dashboard__right {
+          padding: 2rem 1.5rem;
+          display: flex;
+          flex-direction: column;
+        }
+        .stat-block {
+          padding: 1.5rem 0;
+          border-bottom: 1px solid rgba(0, 229, 255, 0.08);
+          display: flex;
+          flex-direction: column;
+          gap: 0.3rem;
+        }
+        .stat-block:first-child { border-top: 1px solid rgba(0, 229, 255, 0.08); }
+        .stat-block__value {
+          font-family: var(--font-display);
+          font-size: 2.25rem;
+          color: var(--color-primary);
+          font-variant-numeric: tabular-nums;
+          line-height: 1;
+        }
+        .stat-block__label {
+          font-family: var(--font-mono);
+          font-size: 0.6rem;
+          letter-spacing: 0.15em;
+          color: rgba(240, 240, 232, 0.35);
+          text-transform: uppercase;
+        }
+        .dashboard__footer {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          border-top: 1px solid rgba(0, 229, 255, 0.08);
+        }
+        .footer-card {
+          padding: 1.25rem 1.5rem;
+          font-family: var(--font-mono);
+          font-size: 0.65rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: rgba(240, 240, 232, 0.4);
+          border-right: 1px solid rgba(0, 229, 255, 0.08);
+          cursor: pointer;
+          transition: color 180ms, border-color 180ms;
+        }
+        .footer-card:last-child { border-right: none; }
+        .footer-card:hover {
+          color: var(--color-primary);
+          border-color: rgba(0, 229, 255, 0.25);
+        }
+        @media (max-width: 1024px) {
+          .dashboard__body {
+            grid-template-columns: 1fr 1fr;
+          }
+          .dashboard__right {
+            border-right: none;
+            border-left: 1px solid rgba(0, 229, 255, 0.08);
+          }
+          .dashboard__left {
+            grid-column: 1 / -1;
+            border-right: none;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.08);
+            padding: 1.5rem;
+          }
+        }
+        @media (max-width: 768px) {
+          .dashboard__body {
+            grid-template-columns: 1fr;
+          }
+          .dashboard__left, .dashboard__center, .dashboard__right {
+            border-right: none;
+          }
+          .dashboard__center {
+            border-bottom: 1px solid rgba(0, 229, 255, 0.08);
+          }
+          .dashboard__right {
+            border-left: none;
+            border-top: 1px solid rgba(0, 229, 255, 0.08);
+          }
+          .dashboard__footer {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          .dashboard__footer .footer-card:nth-child(2n) {
+            border-right: none;
+          }
+          .dashboard__footer .footer-card:nth-child(n+3) {
+            border-top: 1px solid rgba(0, 229, 255, 0.08);
+          }
+        }
       `}</style>
     </div>
   )

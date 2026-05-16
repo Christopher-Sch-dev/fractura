@@ -1,6 +1,6 @@
 import { type FC, useState, useMemo } from 'react'
 import type { Alerta } from '../api/alerts'
-import { AlertCard } from './AlertCard'
+import type { GraphNode } from '../api/graph'
 
 interface AlertTableProps {
   alertas: Alerta[]
@@ -17,6 +17,29 @@ const PATRON_TABS: { value: PatronFilter; label: string }[] = [
   { value: 'multi-org', label: 'MULTI-ORG' },
   { value: 'recurrente', label: 'RECURRENTE' },
 ]
+
+const PATRON_LABELS: Record<string, string> = {
+  fraccionamiento: 'FRACCIONAMIENTO',
+  'multi-org': 'MULTI-ORG',
+  recurrente: 'RECURRENTE',
+}
+
+function formatCLP(monto: number | string | null): string {
+  if (monto == null || monto === '') return '—'
+  const n = Number(monto)
+  if (isNaN(n)) return '—'
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    maximumFractionDigits: 0,
+  }).format(n)
+}
+
+const SEVERITY_LABELS: Record<string, string> = {
+  high: 'ALTA',
+  medium: 'MEDIA',
+  low: 'BAJA',
+}
 
 export const AlertTable: FC<AlertTableProps> = ({
   alertas,
@@ -75,38 +98,56 @@ export const AlertTable: FC<AlertTableProps> = ({
       </div>
 
       {loading && (
-        <div className="alert-table__loading">
-          CARGANDO DATOS...
-        </div>
+        <div className="alert-table__loading">CARGANDO DATOS...</div>
       )}
 
       {error && (
-        <div className="alert-table__error">
-          ERROR: {error}
-        </div>
+        <div className="alert-table__error">ERROR: {error}</div>
       )}
 
       {!loading && !error && (
-        <div className="alert-table__grid">
-          {filtered.length === 0 ? (
-            <div className="alert-table__empty">SIN ALERTAS QUE COINCIDAN</div>
-          ) : (
-            filtered.map(alerta => (
-              <AlertCard
-                key={alerta.id}
-                alerta={alerta}
-                onClick={onAlertClick}
-              />
-            ))
-          )}
-        </div>
-      )}
+        <>
+          <div className="alert-table__grid">
+            {filtered.length === 0 ? (
+              <div className="alert-table__empty">SIN ALERTAS QUE COINCIDAN</div>
+            ) : (
+              filtered.map(alerta => {
+                const patronLabel = alerta.patron ? (PATRON_LABELS[alerta.patron] ?? alerta.patron.toUpperCase()) : '—'
+                return (
+                  <div
+                    key={alerta.id}
+                    className="alert-table__row"
+                    onClick={() => onAlertClick?.(alerta)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={e => e.key === 'Enter' && onAlertClick?.(alerta)}
+                  >
+                    <div className="alert-table__cell alert-table__cell--patron">
+                      <span className="alert-table__patron-badge mono-data">{patronLabel}</span>
+                      <span className="alert-table__observacion">{alerta.mensaje}</span>
+                    </div>
+                    <div className="alert-table__cell alert-table__cell--monto mono-data">
+                      {formatCLP(alerta.monto)}
+                    </div>
+                    <div className="alert-table__cell alert-table__cell--rut mono-data">
+                      {alerta.empresa_rut ?? '—'}
+                    </div>
+                    <div className="alert-table__cell alert-table__cell--severity">
+                      <span className={`alert-table__severity alert-table__severity--${alerta.severidad}`}>
+                        {SEVERITY_LABELS[alerta.severidad ?? 'low'] ?? '—'}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
 
-      {!loading && (
-        <div className="alert-table__footer mono-data">
-          {filtered.length} ALERTA{filtered.length !== 1 ? 'S' : ''}
-          {patronFilter !== 'all' && ` (${PATRON_TABS.find(t => t.value === patronFilter)?.label})`}
-        </div>
+          <div className="alert-table__footer mono-data">
+            {filtered.length} ALERTA{filtered.length !== 1 ? 'S' : ''}
+            {patronFilter !== 'all' && ` (${PATRON_TABS.find(t => t.value === patronFilter)?.label})`}
+          </div>
+        </>
       )}
 
       <style>{`
@@ -157,7 +198,6 @@ export const AlertTable: FC<AlertTableProps> = ({
           background: rgba(0, 229, 255, 0.15);
           padding: 0.05rem 0.35rem;
           font-size: 0.625rem;
-          border-radius: 0;
         }
         .alert-table__search {
           background: rgba(12, 11, 9, 0.6);
@@ -176,9 +216,91 @@ export const AlertTable: FC<AlertTableProps> = ({
           letter-spacing: 0.05em;
         }
         .alert-table__grid {
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+          border: 1px solid rgba(0, 229, 255, 0.12);
+          clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+        }
+        .alert-table__row {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 0.75rem;
+          grid-template-columns: 1fr 140px 160px 80px;
+          gap: 0;
+          padding: 0.875rem 1rem;
+          border-bottom: 1px solid rgba(0, 229, 255, 0.06);
+          cursor: pointer;
+          transition: background 0.12s;
+          align-items: center;
+        }
+        .alert-table__row:last-child { border-bottom: none; }
+        .alert-table__row:hover { background: rgba(0, 229, 255, 0.04); }
+        .alert-table__cell {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          min-width: 0;
+        }
+        .alert-table__cell--patron {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.25rem;
+        }
+        .alert-table__patron-badge {
+          font-family: var(--font-heading);
+          font-size: 0.5625rem;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: var(--color-primary);
+          border: 1px solid rgba(0, 229, 255, 0.2);
+          padding: 0.1rem 0.4rem;
+          clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%);
+        }
+        .alert-table__observacion {
+          font-family: var(--font-body);
+          font-size: 0.8125rem;
+          color: rgba(240, 240, 232, 0.75);
+          line-height: 1.3;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 100%;
+        }
+        .alert-table__cell--monto {
+          font-size: 0.8125rem;
+          color: var(--color-primary);
+          font-weight: 500;
+          justify-content: flex-end;
+        }
+        .alert-table__cell--rut {
+          font-size: 0.75rem;
+          color: rgba(240, 240, 232, 0.5);
+          justify-content: flex-end;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .alert-table__cell--severity { justify-content: center; }
+        .alert-table__severity {
+          font-family: var(--font-heading);
+          font-size: 0.5625rem;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          padding: 0.2rem 0.5rem;
+          clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%);
+        }
+        .alert-table__severity--high {
+          background: var(--color-alert);
+          color: var(--color-bg);
+        }
+        .alert-table__severity--medium {
+          background: var(--color-accent);
+          color: var(--color-bg);
+        }
+        .alert-table__severity--low {
+          background: var(--color-primary);
+          color: var(--color-bg);
         }
         .alert-table__loading,
         .alert-table__error {
@@ -190,10 +312,7 @@ export const AlertTable: FC<AlertTableProps> = ({
           border: 1px dashed rgba(0, 229, 255, 0.2);
           clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
         }
-        .alert-table__error {
-          color: var(--color-alert);
-          border-color: rgba(255, 26, 26, 0.3);
-        }
+        .alert-table__error { color: var(--color-alert); border-color: rgba(255, 26, 26, 0.3); }
         .alert-table__empty {
           padding: 2rem;
           text-align: center;

@@ -13,8 +13,45 @@ const SEVERITY_COLORS: Record<string, string> = {
   low: 'var(--color-primary)',
 }
 
+const PATRON_LABELS: Record<string, string> = {
+  fraccionamiento: 'FRACCIONAMIENTO',
+  'multi-org': 'MULTI-ORG',
+  recurrente: 'RECURRENTE',
+}
+
+function formatCLP(monto: number | string | null): string {
+  if (monto == null || monto === '') return '—'
+  const n = Number(monto)
+  if (isNaN(n)) return '—'
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    maximumFractionDigits: 0,
+  }).format(n)
+}
+
+function formatDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return '—'
+  try {
+    const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return dateStr
+    return d.toLocaleDateString('es-CL', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).toUpperCase()
+  } catch {
+    return dateStr
+  }
+}
+
 export const AlertDetail: FC<AlertDetailProps> = ({ alerta, onClose, onShowInGraph }) => {
   const sevColor = alerta.severidad ? SEVERITY_COLORS[alerta.severidad] ?? 'var(--color-primary)' : 'var(--color-primary)'
+  const patronLabel = alerta.patron ? (PATRON_LABELS[alerta.patron] ?? alerta.patron.toUpperCase()) : null
+
+  const fuenteLabel = alerta.fuente
+    ? `FUENTE: ${alerta.fuente.toUpperCase()}`
+    : 'FUENTE: —'
 
   return (
     <div className="alert-detail">
@@ -34,8 +71,8 @@ export const AlertDetail: FC<AlertDetailProps> = ({ alerta, onClose, onShowInGra
             >
               {alerta.severidad?.toUpperCase() ?? '—'}
             </span>
-            {alerta.patron && (
-              <span className="alert-detail__patron mono-data">{alerta.patron.toUpperCase()}</span>
+            {patronLabel && (
+              <span className="alert-detail__patron mono-data">{patronLabel}</span>
             )}
           </div>
 
@@ -61,26 +98,30 @@ export const AlertDetail: FC<AlertDetailProps> = ({ alerta, onClose, onShowInGra
             {alerta.monto && (
               <div className="alert-detail__meta-row">
                 <span className="alert-detail__meta-label">MONTO</span>
-                <span className="alert-detail__meta-value mono-data">
-                  {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(Number(alerta.monto))}
-                </span>
+                <span className="alert-detail__meta-value mono-data">{formatCLP(alerta.monto)}</span>
               </div>
             )}
-            <div className="alert-detail__meta-row">
-              <span className="alert-detail__meta-label">FUENTE</span>
-              <span className="alert-detail__meta-value mono-data">{alerta.fuente ?? '—'}</span>
-            </div>
             {alerta.fecha_deteccion && (
               <div className="alert-detail__meta-row">
-                <span className="alert-detail__meta-label">DETECCIÓN</span>
-                <span className="alert-detail__meta-value mono-data">{alerta.fecha_deteccion}</span>
+                <span className="alert-detail__meta-label">FECHA DETECCIÓN</span>
+                <span className="alert-detail__meta-value mono-data">{formatDate(alerta.fecha_deteccion)}</span>
               </div>
             )}
             <div className="alert-detail__meta-row">
               <span className="alert-detail__meta-label">ID</span>
               <span className="alert-detail__meta-value mono-data">{alerta.id}</span>
             </div>
+            {alerta.created_at && (
+              <div className="alert-detail__meta-row">
+                <span className="alert-detail__meta-label">TIMESTAMP</span>
+                <span className="alert-detail__meta-value mono-data">{formatDate(alerta.created_at)}</span>
+              </div>
+            )}
           </div>
+        </div>
+
+        <div className="alert-detail__footer">
+          <span className="alert-detail__fuente-label mono-data">{fuenteLabel}</span>
         </div>
 
         <div className="alert-detail__actions">
@@ -112,7 +153,7 @@ export const AlertDetail: FC<AlertDetailProps> = ({ alerta, onClose, onShowInGra
         }
         .alert-detail__panel {
           position: relative;
-          width: 420px;
+          width: 480px;
           max-width: 95vw;
           max-height: 100vh;
           overflow-y: auto;
@@ -214,6 +255,17 @@ export const AlertDetail: FC<AlertDetailProps> = ({ alerta, onClose, onShowInGra
           color: var(--color-text);
           text-align: right;
           word-break: break-all;
+        }
+        .alert-detail__footer {
+          padding: 0.75rem 1.25rem;
+          border-top: 1px solid rgba(0, 229, 255, 0.08);
+          background: rgba(0, 0, 0, 0.2);
+        }
+        .alert-detail__fuente-label {
+          font-size: 0.5625rem;
+          letter-spacing: 0.15em;
+          color: rgba(0, 229, 255, 0.5);
+          text-transform: uppercase;
         }
         .alert-detail__actions {
           padding: 1rem 1.25rem;

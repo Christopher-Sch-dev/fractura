@@ -4,7 +4,7 @@ import pandas as pd
 from pathlib import Path
 from backend.db import get_db
 
-DATA_ROOT = Path("C:/Users/chris/fractura_research/fractura-local-data/raw/chilecompra")
+DATA_ROOT = Path(os.getenv("LOCAL_DATA_PATH", "C:/Users/chris/fractura_research/fractura-local-data/raw/chilecompra"))
 
 P1_THRESHOLD_COUNT = 3
 P1_THRESHOLD_ORGS = 1
