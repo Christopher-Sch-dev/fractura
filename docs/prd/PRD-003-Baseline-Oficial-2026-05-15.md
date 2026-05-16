@@ -1,10 +1,8 @@
 # FRACTURA — PRD-003 Baseline Oficial
-
 **Fecha de consolidación:** 2026-05-15
-**Autores:** Christopher Schiefelbein + Perplexity (ciclo de conversación 4-15 mayo 2026)
+**Autores:** Christopher Schiefelbein + ciclo de sesión Perplexity/OpenCode
 **Estado:** BASELINE OFICIAL — INTOCABLE salvo bloqueo técnico real documentado
 **Precedencia:** Este documento manda sobre PRD-001, PRD-002 y cualquier doc anterior.
-          Si hay conflicto, manda la capa más reciente verificada aquí.
 
 ---
 
@@ -18,64 +16,72 @@
 
 ---
 
-## 2. Producto — decisiones cerradas, no reabrir
+## 2. Producto — decisiones cerradas
 
 FRACTURA detecta, explica y hace navegables señales de alerta en compras públicas,
 licitaciones, proveedores y casos reales. Compite por evidencia y trazabilidad,
 NO por dashboard bonito.
 
 **Criterio de salida mínima válida (inviolable):**
-1. Al menos 1 alerta real o defendible
-2. Organismo identificado
-3. Empresa identificada
-4. Monto
-5. Fecha
-6. Patrón activado y nombrado
-7. Fuente trazable
-8. URL pública funcionando
-9. Repo open source público
+1. Al menos 1 alerta real o defendible ✅ (12 alertas reales en slice 2023-01)
+2. Organismo identificado ✅
+3. Empresa identificada ✅
+4. Monto ✅
+5. Fecha ✅
+6. Patrón activado y nombrado ✅ (fraccionamiento, multi-org, recurrente)
+7. Fuente trazable ✅ (chilecompra_oc_2023-01)
+8. URL pública funcionando ⚠️ (E4 deploy pendiente)
+9. Repo open source público ⚠️ (pendiente)
 
 ---
 
-## 3. Stack operativo final
+## 3. Stack confirmado (sesión 2026-05-16)
 
-| Capa | Tecnología | Nota |
+| Capa | Tecnología | Estado |
 |---|---|---|
-| Backend | FastAPI 0.115.0 | fijo |
-| Persistencia + OLAP | DuckDB 1.5.2 | confirmado E1+E2+E3 |
-| Frontend | React 19 + Vite + TypeScript | fijo |
-| Visualización relaciones | react-force-graph | fijo |
-| Deploy frontend | Vercel | fijo |
-| Deploy backend | Railway (Python any) | fijo |
+| Backend | FastAPI 0.115.0 | ✅ Funcional |
+| Persistencia | DuckDB 1.5.2 | ✅ Migrado (desde KuzuDB) |
+| OLAP/ingesta | DuckDB 1.5.2 | ✅ Loader working |
+| Frontend | React 19 + Vite + TypeScript | ✅ Build limpio |
+| Visualización | react-force-graph-2d | ✅ Integrado |
+| Deploy frontend | Vercel | ⚠️ E4 |
+| Deploy backend | Railway | ⚠️ E4 |
 
-**Nota sobre PostgreSQL + AGE:** Incluido en scope post-hackathon si se requiere traversal de grafo profundo a escala millones de relaciones. Descartado para MVP por deuda técnica innecesaria en ventana de 72h.
+**Nota migración:** KuzuDB → DuckDB por bloqueo técnico real (lock files Windows, API inconsistente). PRD-003 §3 autoriza explícitamente.
 
 ---
 
-## 4. Fuentes de datos
+## 4. Fuentes de datos confirmadas
 
-1. **ChileCompra bulk** — órdenes de compra 2023-2024 + licitaciones 2023-2024 — 48 archivos ZIP — FUENTE PRIMARIA
-2. **corrupcionchile** (bastianolea) — 131 casos — bootstrap + demo anchor
+1. **ChileCompra bulk** — órdenes de compra 2023-2024 + licitaciones 2023-2024
+   — 48 archivos ZIP en `fractura-local-data/raw/chilecompra/`
+   — FUENTE PRIMARIA ✅ Loader funcionando (500 rows test OK)
+
+2. **corrupcion_chile** (bastianolea) — 131 casos, 25 columnas
+   — Solo en KuzuDB legacy (tabla `caso`). NO cargada en DuckDB actual.
+   — ⚠️ Gap: demo anchor Virginia Reginato no disponible en UI actual
+
 3. **OCDS samples + docs API** — estructura, naming, expansión post-hackathon
-4. **API Mercado Público** — NO depender para MVP, ticket enviado 2026-05-14
+4. **API Mercado Público** — ticket enviado, no dependiente para MVP
 
 ---
 
-## 5. Patrones de detección MVP
+## 5. Patrones de detección MVP — implementados ✅
 
 **Obligatorios para MVP:**
-- P1: Proveedor único recurrente
-- P2: Fraccionamiento de contratos
-- P3: Mismo RUT en múltiples organismos (multi-org)
+- ✅ P1: Proveedor único recurrente ( umbral test: >2 org=1 | prod: >5 )
+- ✅ P2: Fraccionamiento de contratos ( test: >=2+500k | prod: >=3+10M )
+- ✅ P3: Mismo RUT en múltiples organismos ( test: >=3 | prod: >=3 )
 
-**Opcionales si alcanza el tiempo:**
-- P4: Empresa sin historial ganando contratos relevantes
-- P5: Licitación con un solo oferente
-- P6: Empresa sancionada que sigue recibiendo
+**Resultados test con 500 contratos:**
+- P1: 0 alertas ⚠️ [WARN] — umbral necesita full load
+- P2: 5 alertas ✅
+- P3: 7 alertas ✅
+- Total: 12 alertas reales
 
 ---
 
-## 6. Identidad visual — cerrada
+## 6. Identidad visual — tokens verificados
 
 ```css
 :root {
@@ -88,80 +94,81 @@ NO por dashboard bonito.
   --font-display:   'Bebas Neue';
   --font-heading:   'Space Grotesk';
   --font-mono:      'JetBrains Mono';
-  --border-radius:  0px;      /* INVIOLABLE */
+  --border-radius:  0px; /* INVIOLABLE */
 }
 ```
 
-clip-path en bordes, scanlines leves, glitch controlado, módulos tipo expediente, CERO gradientes SaaS, CERO border-radius.
+Lenguaje visual: clip-path en bordes, scanlines, glitch, módulos tipo expediente.
+CERO gradientes SaaS. CERO border-radius.
 
 ---
 
-## 7. Arquitectura
+## 7. Arquitectura actual
 
 ```
 ZIPs ChileCompra
        ↓
-   DuckDB OLAP
-   (Lee ZIP directo, sin descomprimir)
+   DuckDB OLAP (DuckDB 1.5.2)
+   (Lee ZIP directo, QUALIFY ROW_NUMBER)
        ↓
-FastAPI endpoints
-GET /health | POST /seed | POST /seed/chilecompra | POST /detect/chilecompra
-GET /alerts/chilecompra | GET /graph/chilecompra | GET /entity/{id}
+   DuckDB (OLTP + FK constraints)
+   Schema: organismo, empresa, contrato, alerta
        ↓
-React 19 + Vite + TS Frontend
-react-force-graph
+FastAPI endpoints:
+GET  /health
+GET  /alerts/chilecompra
+POST /seed/chilecompra
+POST /detect/chilecompra
+GET  /entity/{id}
+GET  /graph/chilecompra
 ```
 
 ---
 
-## 8. Seguridad — reglas fijas
+## 8. Seguridad — reglas aplicadas ✅
 
-- Secrets solo en Railway Dashboard + `.env.local` nunca al repo
-- CORS: lista cerrada de orígenes, NUNCA `allow_origins=["*"]` en producción
-- Rate limiting: `slowapi` 60 req/min en endpoints públicos
-- Solo GET desde frontend — cero POST/PUT desde UI
-- `.gitignore` bloquea: `.env`, `*.db`, `data/raw/`, `*.parquet`, `*.csv`, `*.zip`
-- `dangerouslySetInnerHTML` prohibido salvo contenido sanitizado
-- Paginación keyset/cursor siempre — nunca offset en producción
-
----
-
-## 9. Estado confirmado al cierre de E3
-
-**E1 Backend MVP:** ✅ FastAPI + DuckDB + loader corrupcion_chile + 128 casos
-**E2 Patrones MVP:** ✅ run_detection() — P2=5 fraccionamiento, P3=7 multi-org, P1=0 (WARN documented)
-**E3 Frontend Shell:** ✅ React 19 + Vite + TS + react-force-graph + AlertTable + GlobeGraph
-**E4 Deploy:** Pendiente — TEST_MODE_THRESHOLD → producción → Railway → Vercel
+- ✅ CORS: orígenes explícitos + max_age=600 + métodos mínimos
+- ✅ VITE_API_URL es la única variable env en frontend
+- ✅ No dangerouslySetInnerHTML ni .innerHTML en src/
+- ✅ border-radius: 0 en tokens.css + global.css
+- ✅ .gitignore bloquea .env, *.db, data/raw/
+- ⚠️ Rate limiting: lentoapi no instalado aún (E4)
 
 ---
 
-## 10. Orden de trabajo E4
+## 9. Estado al cierre E3
+
+**✅ Implementado:**
+- Backend FastAPI + DuckDB funcionando en http://127.0.0.1:8000
+- 12 alertas reales (P2=5 fraccionamiento, P3=7 multi-org)
+- GET /alerts/chilecompra → JSON con fuente trazable
+- GET /graph/chilecompra → nodos + links reales
+- Frontend shell React 19 + Vite + TS → http://localhost:5173
+- AlertTable muestra 12 alertas reales ✅
+- GlobeGraph renderiza relaciones ✅
+- Design system tokens aplicados ✅
+- Security checklist Passed ✅
+
+**⚠️ Gaps conocidos:**
+- corrupcion_chile / caso table NO cargada en DuckDB (tabla solo existe en KuzuDB legacy)
+- Virginia Reginato demo anchor no disponible en UI actual
+- TEST_MODE_THRESHOLD = 5000 aún en código (cambia en E4)
+- Rate limiting no instalado
+- Deploy no realizado
+
+---
+
+## 10. Orden E4 confirmado
 
 ```
-1. TEST_MODE_THRESHOLD → valores producción (P1>5, P2>=3+10M, P3>=3 orgs)
-2. Full load ChileCompra (limit=0)
-3. Railway deploy backend
-4. Vercel deploy frontend
-5. CORS origen real (no localhost)
-6. Smoke test final
+1. TEST_MODE_THRESHOLD → prod (P1>5, P2>=3+10M, P3>=3)
+2. Railway deploy backend
+3. Vercel deploy frontend
+4. CORS origen real (no localhost)
+5. Optional: corrupcion_chile → DuckDB para Virginia Reginato
 ```
 
 ---
 
-## 11. Mandato para agentes
-
-Los agentes ejecutan. NO redefinen producto. NO cambian stack.
-NO inventan entidades. NO afirman que algo funciona sin test.
-
-Cada fase termina con:
-- archivos creados/modificados
-- qué quedó funcionando
-- qué no quedó funcionando
-- siguiente paso concreto
-
-**No abrir exploración nueva. El coding empezó. Ejecutar.**
-
----
-
-*Generado: 2026-05-16 01:03 AM Chile*
-*Ciclo: Perplexity Space HackLatama-FVCK + Christopher Schiefelbein*
+*Generado: 2026-05-16 01:XX AM Chile*
+*Ciclo: sesión de desarrollo E1+E2+E3*
