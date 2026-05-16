@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from backend.main import logger
 from backend.models import AlertaResponse
 from backend.db import get_db
 
@@ -6,6 +7,7 @@ router = APIRouter()
 
 @router.get("/alerts/{alert_id}")
 def get_alert_by_id(alert_id: str):
+    logger.info(f"GET /alerts/{alert_id}")
     try:
         db = get_db()
         row = db.execute("""

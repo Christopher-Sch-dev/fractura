@@ -1,7 +1,29 @@
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import time
+
+# Logging setup
+logger = logging.getLogger("fractura")
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = RotatingFileHandler("/tmp/fractura-backend.log", maxBytes=2_000_000, backupCount=3)
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)-8s %(name)s %(message)s"))
+    logger.addHandler(handler)
+
+def log_request(req: Request, call_next):
+    """Log every request with method, path, duration."""
+    t0 = time.time()
+    res = call_next(req)
+    dur = (time.time() - t0) * 1000
+    logger.info(f"{req.method} {req.url.path} → {dur:.1f}ms")
+    return res
+
+
 from backend.routers import health, seed, alerts, entity, chilecompra, graph
 from backend.db import close_db, get_db
 
@@ -16,6 +38,8 @@ async def lifespan(app: FastAPI):
     close_db()
 
 app = FastAPI(title="FRACTURA API", version="0.3.0", lifespan=lifespan)
+
+app.middleware("http")(log_request)
 
 app.add_middleware(
     CORSMiddleware,

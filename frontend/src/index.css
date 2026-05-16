@@ -147,3 +147,29 @@ input:focus, textarea:focus, select:focus {
   opacity: 0.025;
   pointer-events: none;
 }
+/* ============================================
+   PRD-004 VISUAL MIGRATION — STEP 3 TOKENS
+   Add to @theme when ready to activate
+   ============================================ */
+
+/* Stat cards — numbers: white by default, cyan on hover */
+.stat-number {
+  color: #D0D0D0;
+  transition: color 0.5s;
+}
+.stat-number:hover,
+.group-hover\:text-brand-cyan:hover {
+  color: #00E5FF;
+}
+
+/* Montos — white pure, NEVER cyan */
+.monto-value {
+  color: #ffffff;
+}
+
+/* Alert badges — no cyan background, use muted tones */
+.badge-tipo {
+  background: rgba(0,229,255,0.08);
+  color: #00E5FF;
+  border: 1px solid rgba(0,229,255,0.2);
+}

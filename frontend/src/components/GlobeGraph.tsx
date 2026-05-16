@@ -35,54 +35,55 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
     onNodeClick?.(node as GraphNode)
   }, [onNodeClick])
 
-  // _destructor/graphData methods don't exist on the ref — they're internal to kapsule.
-  // graphData is set via React prop. D3 forces also not available imperatively.
-  // The cleanup useEffect below is a no-op since the ref only exposes the method list.
-
-  if (!data && !loading) {
+  if (loading) {
     return (
-      <div className="globe-graph" style={{ position: 'relative', width, height }}>
-        <div className="globe-graph__overlay">
-          <span className="globe-graph__empty mono-data">SIN DATOS DE GRAFO</span>
-        </div>
-        <div className="globe-graph__legend">
-          <span className="globe-graph__legend-item">
-            <svg width="10" height="10"><rect width="10" height="10" fill="#00E5FF"/></svg>
-            Organismo
-          </span>
-          <span className="globe-graph__legend-item">
-            <svg width="12" height="10"><polygon points="6,0 12,2.5 12,7.5 6,10 0,7.5 0,2.5" fill="#E87C0A"/></svg>
-            Empresa
-          </span>
-          <span className="globe-graph__legend-item">
-            <svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="#555555"/></svg>
-            Contrato
-          </span>
-        </div>
+      <div className="globe-graph-loading">
+        <span className="globe-graph-loading__text mono-data">CARGANDO GRAFO...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="globe-graph-error">
+        <span className="globe-graph-error__text">{error}</span>
+      </div>
+    )
+  }
+
+  if (!data || data.nodes.length === 0) {
+    return (
+      <div className="globe-graph-empty">
+        <span className="globe-graph-empty__text mono-data">SIN DATOS DE GRAFO</span>
       </div>
     )
   }
 
   return (
-    <div className="globe-graph" style={{ position: 'relative', width, height }}>
-      {loading && (
-        <div className="globe-graph__overlay">
-          <span className="globe-graph__loading mono-data">CARGANDO GRAFO...</span>
+    <div className="globe-graph-container">
+      <div className="globe-graph-legend">
+        <div className="globe-graph-legend__item">
+          <svg width="10" height="10"><rect width="10" height="10" fill="none" stroke="#00E5FF" strokeWidth="2"/></svg>
+          <span>Organismo</span>
         </div>
-      )}
-      {error && (
-        <div className="globe-graph__overlay globe-graph__overlay--err">
-          <span className="globe-graph__err">ERROR: {error}</span>
+        <div className="globe-graph-legend__item">
+          <svg width="10" height="10"><polygon points="5,0 10,2.5 10,7.5 5,10 0,7.5 0,2.5" fill="none" stroke="#E87C0A" strokeWidth="1.5"/></svg>
+          <span>Empresa</span>
         </div>
-      )}
+        <div className="globe-graph-legend__item">
+          <svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="none" stroke="#555555" strokeWidth="1"/></svg>
+          <span>Contrato</span>
+        </div>
+      </div>
       <ForceGraph2D
         ref={fgRef}
-        graphData={data ?? { nodes: [], links: [] }}
+        graphData={data}
         width={width}
         height={height}
         backgroundColor="#050505"
-        nodeLabel="label"
         nodeColor={(node: any) => NODE_COLORS[node.tipo] ?? '#A0A0A0'}
+        linkColor={() => 'rgba(255,255,255,0.05)'}
+        linkWidth={0.6}
         nodeCanvasObjectMode={() => 'replace'}
         nodeCanvasObject={(node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
           const color = NODE_COLORS[node.tipo] ?? '#A0A0A0'
@@ -95,22 +96,18 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
           const cy = node.y ?? 0
 
           if (isOrganismo) {
-            ctx.shadowBlur = 14
-            ctx.shadowColor = 'rgba(0, 229, 255, 0.7)'
-          } else if (isEmpresa) {
-            ctx.shadowBlur = 10
-            ctx.shadowColor = 'rgba(232, 124, 10, 0.55)'
-          }
-
-          ctx.fillStyle = color
-
-          if (isOrganismo) {
-            ctx.fillRect(cx - r, cy - r, r * 2, r * 2)
-            ctx.shadowBlur = 0
+            // Cuadrado hueco — stroke only, no fill
+            ctx.strokeStyle = color
+            ctx.lineWidth = 2
+            ctx.strokeRect(cx - r, cy - r, r * 2, r * 2)
+            // Halo exterior semitransparente
             ctx.strokeStyle = 'rgba(0, 229, 255, 0.35)'
-            ctx.lineWidth = 1.5
+            ctx.lineWidth = 1
             ctx.strokeRect(cx - r - 3, cy - r - 3, (r + 3) * 2, (r + 3) * 2)
           } else if (isEmpresa) {
+            // Hexágono hueco — stroke only
+            ctx.strokeStyle = color
+            ctx.lineWidth = 1.5
             ctx.beginPath()
             for (let i = 0; i < 6; i++) {
               const angle = (Math.PI / 3) * i - Math.PI / 6
@@ -119,8 +116,8 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
               i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
             }
             ctx.closePath()
-            ctx.fill()
-            ctx.shadowBlur = 0
+            ctx.stroke()
+            // Halo exterior
             ctx.strokeStyle = 'rgba(232, 124, 10, 0.35)'
             ctx.lineWidth = 1
             ctx.beginPath()
@@ -133,10 +130,13 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
             ctx.closePath()
             ctx.stroke()
           } else {
+            // Círculo hueco — stroke only para Contrato
+            ctx.strokeStyle = color
+            ctx.lineWidth = 1
             ctx.beginPath()
             ctx.arc(cx, cy, r, 0, 2 * Math.PI)
-            ctx.fill()
-            ctx.shadowBlur = 0
+            ctx.stroke()
+            // Halo exterior
             ctx.strokeStyle = 'rgba(160, 160, 160, 0.2)'
             ctx.lineWidth = 0.5
             ctx.beginPath()
@@ -144,34 +144,16 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
             ctx.stroke()
           }
 
-          if (isOrganismo && globalScale >= 0.9) {
-            ctx.font = '11px JetBrains Mono, monospace'
+          // Label solo si está lo suficientemente zoomed in
+          if (isOrganismo && globalScale >= 0.8) {
+            ctx.font = `${Math.max(10, 11 / globalScale)}px JetBrains Mono, monospace`
             ctx.fillStyle = 'rgba(0, 229, 255, 0.8)'
             ctx.textAlign = 'center'
             ctx.fillText(node.label, cx, cy + r + 14)
           }
-
-          ctx.shadowBlur = 0
         }}
-        linkColor={() => 'rgba(0, 229, 255, 0.1)'}
-        linkWidth={0.8}
         onNodeClick={handleClick}
       />
-
-      <div className="globe-graph__legend">
-        <span className="globe-graph__legend-item">
-          <svg width="10" height="10"><rect width="10" height="10" fill="#00E5FF"/></svg>
-          Organismo
-        </span>
-        <span className="globe-graph__legend-item">
-          <svg width="12" height="10"><polygon points="6,0 12,2.5 12,7.5 6,10 0,7.5 0,2.5" fill="#E87C0A"/></svg>
-          Empresa
-        </span>
-        <span className="globe-graph__legend-item">
-          <svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="#555555"/></svg>
-          Contrato
-        </span>
-      </div>
     </div>
   )
 }

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
+from backend.main import logger
 from backend.db import get_db
 
 router = APIRouter()
@@ -11,6 +12,7 @@ def graph_chilecompra(
 ):
     try:
         db = get_db()
+        logger.info(f"GET /graph/chilecompra limit={limit} node_id={node_id}")
 
         if node_id:
             # Vecinos del nodo específico
