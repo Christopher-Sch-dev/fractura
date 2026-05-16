@@ -1,4 +1,5 @@
 import csv
+import os
 from pathlib import Path
 from backend.db import get_db
 
@@ -107,9 +108,9 @@ def run_detection_corrupcion():
     casos = db.execute("""
         SELECT id, nombre, conclusion, monto, estado, delitos
         FROM caso
-        WHERE conclusion IS NOT NULL AND conclusion <> ''
-           OR estado IS NOT NULL AND estado <> ''
-           OR delitos IS NOT NULL AND delitos <> ''
+        WHERE (conclusion IS NOT NULL AND conclusion <> '')
+           OR (estado IS NOT NULL AND estado <> '')
+           OR (delitos IS NOT NULL AND delitos <> '')
     """).fetchall()
 
     KEYWORDS_ALTA = ['impunidad', 'fraude', 'malversación', 'cohecho', 'soborno']

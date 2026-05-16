@@ -32,7 +32,7 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(seed.router)
-app.include_router(alerts.router)
-app.include_router(entity.router)
 app.include_router(chilecompra.router)
+app.include_router(entity.router)
+app.include_router(alerts.router)
 app.include_router(graph.router)
