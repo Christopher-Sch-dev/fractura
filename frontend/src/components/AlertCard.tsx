@@ -64,60 +64,7 @@ export const AlertCard: FC<AlertCardProps> = ({ alerta, onClick }) => {
         <div className="alert-card__rut mono-data">RUT: {alerta.empresa_rut}</div>
       )}
 
-      <style>{`
-        .alert-card {
-          background: rgba(12, 11, 9, 0.7);
-          border: 1px solid rgba(0, 229, 255, 0.12);
-          padding: 0.875rem 1rem;
-          cursor: pointer;
-          clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
-          transition: border-color 0.15s, box-shadow 0.15s;
-          display: flex;
-          flex-direction: column;
-          gap: 0.4rem;
-        }
-        .alert-card:hover {
-          border-color: rgba(0, 229, 255, 0.4);
-          box-shadow: 0 0 16px rgba(0, 229, 255, 0.12);
-        }
-        .alert-card__header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 0.5rem;
-        }
-        .alert-card__patron {
-          font-family: var(--font-heading);
-          font-size: 0.6875rem;
-          font-weight: 600;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-        .alert-card__mensaje {
-          font-size: 0.8125rem;
-          color: var(--color-text);
-          line-height: 1.4;
-        }
-        .alert-card__meta {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          font-size: 0.75rem;
-          color: rgba(240, 240, 232, 0.6);
-        }
-        .alert-card__monto {
-          color: var(--color-primary);
-          font-weight: 500;
-        }
-        .alert-card__fuente {
-          color: rgba(240, 240, 232, 0.4);
-          font-size: 0.6875rem;
-        }
-        .alert-card__rut {
-          font-size: 0.6875rem;
-          color: rgba(240, 240, 232, 0.35);
-        }
-      `}</style>
+      
     </article>
   )
 }
