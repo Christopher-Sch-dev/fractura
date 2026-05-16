@@ -35,20 +35,9 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
     onNodeClick?.(node as GraphNode)
   }, [onNodeClick])
 
-  useEffect(() => {
-    if (fgRef.current) {
-      fgRef.current._destructor?.()
-      fgRef.current = null
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!data || !fgRef.current) return
-
-    fgRef.current.graphData(data)
-    fgRef.current.d3Force('charge')?.strength(-120)
-    fgRef.current.d3Force('link')?.distance(80)
-  }, [data])
+  // _destructor/graphData methods don't exist on the ref — they're internal to kapsule.
+  // graphData is set via React prop. D3 forces also not available imperatively.
+  // The cleanup useEffect below is a no-op since the ref only exposes the method list.
 
   if (!data && !loading) {
     return (

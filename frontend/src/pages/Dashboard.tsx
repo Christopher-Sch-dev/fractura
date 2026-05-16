@@ -89,10 +89,12 @@ export const Dashboard: FC = () => {
         <section className="dashboard__center">
           <div className="dashboard__graph-wrapper">
             <GlobeGraph
-              data={graphData}
+              data={graphData ?? undefined}
               loading={graphLoading}
               error={graphError}
-              onNodeClick={(node: GraphNode) => setFocusNodeId(node.id)}
+              onNodeClick={(node: GraphNode) => {
+                setFocusNodeId(node.id)
+              }}
               onAlertClick={(a) => setSelectedAlert(a)}
             />
           </div>

@@ -112,8 +112,8 @@ def _fetch_nodes_batch(db, node_ids: set) -> list[dict]:
         WHERE id IN ({placeholders})
     """, nid_list + nid_list + nid_list).fetchall()
 
-    return [
-        {"id": row[0], "label": row[1], "tipo": row[2]}
-        for row in rows
-        if row[0] and row[1]
-    ]
+    seen: dict[str, dict] = {}
+    for row in rows:
+        if row[0] and row[1] and row[0] not in seen:
+            seen[row[0]] = {"id": row[0], "label": row[1], "tipo": row[2]}
+    return list(seen.values())
