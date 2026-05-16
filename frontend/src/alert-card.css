@@ -49,7 +49,8 @@
 }
 
 .alert-card__monto {
-  color: var(--color-primary);
+  /* PRD-004: monto en blanco puro, no cyan */
+  color: var(--text-bright);
   font-weight: 500;
 }
 

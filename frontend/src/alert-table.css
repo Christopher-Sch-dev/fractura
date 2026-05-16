@@ -137,8 +137,9 @@
 }
 
 .alert-row__badge.patron--multi-org {
-  color: var(--color-primary);
-  border-color: rgba(0, 229, 255, 0.4);
+  /* PRD-004: cyan prohibido en badges de patrón — usar gris claro */
+  color: var(--text-main);
+  border-color: rgba(255,255,255,0.2);
 }
 
 .alert-row__badge.patron--recurrente {
@@ -158,8 +159,9 @@
 }
 
 .alert-row__amount {
+  /* PRD-004: monto en blanco puro, no cyan */
   font-size: 0.8125rem;
-  color: var(--color-primary);
+  color: var(--text-bright);
   text-align: right;
   font-variant-numeric: tabular-nums;
 }

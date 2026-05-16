@@ -206,11 +206,17 @@
   font-family: var(--font-sans);
   font-size: 2.5rem;
   font-weight: 900;
-  color: var(--brand-cyan);
+  /* PRD-004: montos en blanco puro, cyan SOLO en hover/señal activa */
+  color: var(--text-bright);
   font-variant-numeric: tabular-nums;
   line-height: 1;
-  text-shadow: var(--glow-primary);
   letter-spacing: -0.05em;
+  transition: color 0.3s;
+}
+
+.stat-block:hover .stat-block__value {
+  color: var(--brand-cyan);
+  text-shadow: var(--glow-primary);
 }
 
 .stat-block__label {
