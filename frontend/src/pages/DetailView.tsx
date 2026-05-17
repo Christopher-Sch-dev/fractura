@@ -12,6 +12,7 @@ export const DetailView: FC<DetailViewProps> = ({ onBack, initialNodeId }) => {
   const [alerts, setAlerts] = useState<Alerta[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedAlert, setSelectedAlert] = useState<Alerta | null>(null)
+  const [alertDetailModal, setAlertDetailModal] = useState<Alerta | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [patronFilter, setPatronFilter] = useState<string>('todas')
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -130,10 +131,11 @@ export const DetailView: FC<DetailViewProps> = ({ onBack, initialNodeId }) => {
               <select
                 value={patronFilter}
                 onChange={e => setPatronFilter(e.target.value)}
-                className="bg-[var(--bg-deep)] border border-[var(--color-primary-20)] text-[var(--text-main)] font-mono text-sm px-3 py-3 focus:border-[var(--color-primary)] outline-none cursor-pointer"
+                className="bg-[var(--bg-panel)] border border-[var(--color-primary-30)] text-[var(--color-primary)] font-mono text-[11px] px-4 py-[10px] focus:border-[var(--color-primary)] outline-none cursor-pointer tracking-widest uppercase"
+                style={{ appearance: 'none', WebkitAppearance: 'none' }}
               >
                 {PATRON_OPTIONS.map(p => (
-                  <option key={p} value={p}>{p === 'todas' ? 'TODOS' : p.toUpperCase()}</option>
+                  <option key={p} value={p} style={{ background: 'var(--bg-deep)', color: 'var(--text-main)' }}>{p === 'todas' ? 'TODOS' : p.toUpperCase()}</option>
                 ))}
               </select>
               <span className="text-[10px] text-[var(--text-muted)] font-mono">
@@ -225,57 +227,80 @@ export const DetailView: FC<DetailViewProps> = ({ onBack, initialNodeId }) => {
           <div className="flex-1 overflow-y-auto space-y-6">
             <div className="border border-[var(--border-dim)] p-6">
               <p className="text-[9px] text-[var(--text-muted)] font-black tracking-[0.3em] uppercase mb-2">TOTAL ALERTAS</p>
-              <p className="text-4xl font-black text-[var(--text-main)] font-mono">{alerts.length}</p>
+              <p className="text-2xl font-black text-[var(--text-main)] font-mono">{alerts.length}</p>
             </div>
             <div className="border border-[var(--color-alert)]/40 p-6 bg-[rgba(255,42,42,0.05)]">
               <p className="text-[9px] text-[var(--color-alert)] font-black tracking-[0.3em] uppercase mb-2">CRITICAL / HIGH</p>
-              <p className="text-4xl font-black text-[var(--color-alert)] font-mono">{highCount}</p>
+              <p className="text-2xl font-black text-[var(--color-alert)] font-mono">{highCount}</p>
             </div>
             <div className="border border-[var(--border-dim)] p-6">
               <p className="text-[9px] text-[var(--text-muted)] font-black tracking-[0.3em] uppercase mb-2">MONTO TOTAL OBSERVADO</p>
-              <p className="text-3xl font-black text-[var(--color-primary)] font-mono">
+              <p className="text-xl font-black text-[var(--color-primary)] font-mono">
                 ${(totalMonto / 1_000_000_000).toFixed(1)}B
               </p>
             </div>
           </div>
 
-          {/* Selected alert detail */}
-          {selectedAlert ? (
-            <div className="border border-[var(--color-primary-40)] p-6 bg-[var(--color-primary-10)]">
-              <p className="text-[9px] text-[var(--color-primary)] font-black tracking-[0.3em] uppercase mb-4">ALERTA SELECCIONADA</p>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-[9px] text-[var(--text-muted)] uppercase">Tipo</p>
-                  <p className="text-sm font-black text-[var(--text-main)] uppercase">{selectedAlert.tipo}</p>
-                </div>
-                <div>
-                  <p className="text-[9px] text-[var(--text-muted)] uppercase">Patrón</p>
-                  <p className="text-sm font-black text-[var(--text-main)] uppercase">{selectedAlert.patron ?? '—'}</p>
-                </div>
-                <div>
-                  <p className="text-[9px] text-[var(--text-muted)] uppercase">Fuente</p>
-                  <p className="text-sm font-mono text-[var(--text-main)]">{selectedAlert.fuente ?? '—'}</p>
-                </div>
-                <div>
-                  <p className="text-[9px] text-[var(--text-muted)] uppercase">Severidad</p>
-                  <p className="text-sm font-black text-[var(--color-alert)] uppercase">{selectedAlert.severidad ?? '—'}</p>
-                </div>
-                <div>
-                  <p className="text-[9px] text-[var(--text-muted)] uppercase">Monto</p>
-                  <p className="text-lg font-black font-mono text-[var(--text-bright)]">{formatCLP(selectedAlert.monto)}</p>
-                </div>
-                <div>
-                  <p className="text-[9px] text-[var(--text-muted)] uppercase">ID</p>
-                  <p className="text-xs font-mono text-[var(--text-muted)] break-all">{selectedAlert.id}</p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="border border-[var(--border-dim)] p-6 text-center">
-              <p className="text-sm text-[var(--text-muted)] font-mono">Selecciona una alerta para ver detalle</p>
+          {selectedAlert && (
+            <div className="flex items-center gap-3 px-4 py-3 border-t border-[var(--color-alert)]/20 bg-[rgba(255,42,42,0.03)]">
+              <span className="w-2 h-2 bg-[var(--color-alert)] rounded-full animate-pulse" />
+              <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                {selectedAlert.tipo?.toUpperCase()} — {formatCLP(selectedAlert.monto)}
+              </span>
+              <button
+                onClick={() => setAlertDetailModal(selectedAlert)}
+                className="ml-2 text-[9px] font-black text-[var(--color-primary)] hover:text-[var(--color-primary-60)] tracking-widest uppercase transition-colors border border-[var(--color-primary-30)] px-3 py-1"
+              >
+                VER_DETALLE →
+              </button>
             </div>
           )}
         </div>
+          {/* Modal overlay for alert detail */}
+          {alertDetailModal && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              style={{ background: 'rgba(0,0,0,0.85)' }}
+              onClick={() => setAlertDetailModal(null)}
+            >
+              <div
+                className="relative w-full max-w-2xl border border-[var(--color-primary)] bg-[var(--bg-deep)] shadow-2xl shadow-[var(--color-primary-20)] overflow-hidden"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between px-8 py-6 border-b border-[var(--color-primary-30)]">
+                  <span className="text-[10px] font-black text-[var(--color-primary)] tracking-[0.4em] uppercase">ALERTA_DETALLE</span>
+                  <button
+                    onClick={() => setAlertDetailModal(null)}
+                    className="text-[var(--text-muted)] hover:text-[var(--color-primary)] font-mono text-[11px] font-black tracking-widest uppercase transition-colors"
+                  >
+                    [CERRAR_X]
+                  </button>
+                </div>
+                <div className="p-8 space-y-6">
+                  {[
+                    { label: 'TIPO', value: alertDetailModal.tipo?.toUpperCase(), className: 'text-[var(--color-alert)]' },
+                    { label: 'PATRÓN', value: alertDetailModal.patron?.toUpperCase() ?? '—' },
+                    { label: 'FUENTE', value: alertDetailModal.fuente ?? '—' },
+                    { label: 'SEVERIDAD', value: alertDetailModal.severidad?.toUpperCase(), className: 'text-[var(--color-alert)]' },
+                    { label: 'MONTO', value: formatCLP(alertDetailModal.monto), className: 'text-2xl font-black text-[var(--color-primary)] font-mono' },
+                    { label: 'ID', value: alertDetailModal.id, className: 'font-mono text-[var(--text-muted)] break-all' },
+                  ].map(({ label, value, className }) => (
+                    <div key={label} className="flex items-baseline gap-6 border-b border-[var(--border-dim)] pb-4">
+                      <p className="text-[9px] text-[var(--text-muted)] font-black tracking-[0.3em] uppercase w-40 flex-shrink-0">{label}</p>
+                      <p className={`text-sm font-black text-[var(--text-main)] uppercase ${className ?? ''}`}>{value ?? '—'}</p>
+                    </div>
+                  ))}
+                  {alertDetailModal.mensaje && (
+                    <div className="border-t border-[var(--border-dim)] pt-5">
+                      <p className="text-[9px] text-[var(--text-muted)] font-black tracking-[0.3em] uppercase mb-3">MENSAJE</p>
+                      <p className="text-sm text-[var(--text-main)] leading-relaxed font-mono">{alertDetailModal.mensaje}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
       </main>
     </div>
   )
