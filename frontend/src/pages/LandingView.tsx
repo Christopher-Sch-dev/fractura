@@ -2,7 +2,7 @@ import { type FC, useState, useEffect } from 'react'
 import { GlobeGraph } from '../components/GlobeGraph'
 import { StatItem } from '../components/StatItem'
 import Logo from '../components/Logo'
-import type { GraphData } from '../api/graph'
+import type { GraphData, GraphNode } from '../api/graph'
 import type { Alerta } from '../api/alerts'
 import { fetchGraph } from '../api/graph'
 import { fetchAlerts } from '../api/alerts'
@@ -18,6 +18,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [alertDismissed, setAlertDismissed] = useState(false)
   const [testMode, setTestMode] = useState(false)
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
 
   useEffect(() => {
     if (alerts.length > 0 && alerts.length < 200) {
@@ -48,8 +49,11 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
 
   const orgCount = graphData?.nodes.filter(n => n.tipo === 'Organismo').length ?? 0
   const empCount = graphData?.nodes.filter(n => n.tipo === 'Empresa').length ?? 0
-  const totalMonto = alerts.reduce((s, a) => s + parseFloat(String(a.monto ?? '0')), 0)
-  const highCount = alerts.filter(a => a.severidad === 'high').length
+  const selectedAlerts = selectedNode
+    ? alerts.filter(a => a.organismo_id === selectedNode.id || a.proveedor_id === selectedNode.id)
+    : alerts
+  const totalMonto = selectedAlerts.reduce((s, a) => s + parseFloat(String(a.monto ?? '0')), 0)
+  const highCount = selectedAlerts.filter(a => a.severidad === 'high').length
 
   const formatBillions = (n: number) =>
     n >= 1_000_000_000 ? `$${(n / 1_000_000_000).toFixed(1)}B` : `$${(n / 1_000_000).toFixed(0)}M`
@@ -201,7 +205,10 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
                 data={graphData}
                 loading={loading}
                 error={null}
-                onNodeClick={() => {}}
+                onNodeClick={(node) => {
+                  setSelectedNode(node)
+                  onExplore()
+                }}
                 width={700}
                 height={420}
               />
