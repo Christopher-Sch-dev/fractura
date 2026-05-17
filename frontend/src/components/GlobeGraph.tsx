@@ -1,4 +1,4 @@
-import { type FC, useRef, useCallback } from 'react'
+import { type FC, useRef, useCallback, useEffect } from 'react'
 import ForceGraph2DLib from 'react-force-graph-2d'
 import type { GraphData, GraphNode } from '../api/graph'
 import type { Alerta } from '../api/alerts'
@@ -25,7 +25,7 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
   data,
   loading,
   error,
-  width = 800,
+  width = 900,
   height = 500,
   onNodeClick,
 }) => {
@@ -34,6 +34,20 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
   const handleClick = useCallback((node: any) => {
     onNodeClick?.(node as GraphNode)
   }, [onNodeClick])
+
+  // Auto-center and set initial zoom on data load
+  useEffect(() => {
+    if (data && fgRef.current) {
+      setTimeout(() => {
+        try {
+          fgRef.current.zoomToFit(400, 80)
+          fgRef.current.centerAt(0, 0, 400)
+        } catch (e) {
+          // ignore if not ready
+        }
+      }, 200)
+    }
+  }, [data])
 
   if (loading) {
     return (
@@ -80,7 +94,7 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
         graphData={data}
         width={width}
         height={height}
-        backgroundColor="#050505"
+        backgroundColor="#0D0D0D"
         nodeColor={(node: any) => NODE_COLORS[node.tipo] ?? '#A0A0A0'}
         linkColor={() => 'rgba(255,255,255,0.05)'}
         linkWidth={0.6}
@@ -96,16 +110,13 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
           const cy = node.y ?? 0
 
           if (isOrganismo) {
-            // Cuadrado hueco — stroke only, no fill
             ctx.strokeStyle = color
             ctx.lineWidth = 2
             ctx.strokeRect(cx - r, cy - r, r * 2, r * 2)
-            // Halo exterior semitransparente
             ctx.strokeStyle = 'rgba(0, 229, 255, 0.35)'
             ctx.lineWidth = 1
             ctx.strokeRect(cx - r - 3, cy - r - 3, (r + 3) * 2, (r + 3) * 2)
           } else if (isEmpresa) {
-            // Hexágono hueco — stroke only
             ctx.strokeStyle = color
             ctx.lineWidth = 1.5
             ctx.beginPath()
@@ -117,7 +128,6 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
             }
             ctx.closePath()
             ctx.stroke()
-            // Halo exterior
             ctx.strokeStyle = 'rgba(232, 124, 10, 0.35)'
             ctx.lineWidth = 1
             ctx.beginPath()
@@ -130,13 +140,11 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
             ctx.closePath()
             ctx.stroke()
           } else {
-            // Círculo hueco — stroke only para Contrato
             ctx.strokeStyle = color
             ctx.lineWidth = 1
             ctx.beginPath()
             ctx.arc(cx, cy, r, 0, 2 * Math.PI)
             ctx.stroke()
-            // Halo exterior
             ctx.strokeStyle = 'rgba(160, 160, 160, 0.2)'
             ctx.lineWidth = 0.5
             ctx.beginPath()
@@ -144,10 +152,9 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
             ctx.stroke()
           }
 
-          // Label solo si está lo suficientemente zoomed in
-          if (isOrganismo && globalScale >= 0.8) {
-            ctx.font = `${Math.max(10, 11 / globalScale)}px JetBrains Mono, monospace`
-            ctx.fillStyle = 'rgba(0, 229, 255, 0.8)'
+          if (isOrganismo && globalScale >= 0.6) {
+            ctx.font = `${11}px JetBrains Mono, monospace`
+            ctx.fillStyle = 'rgba(0, 229, 255, 0.7)'
             ctx.textAlign = 'center'
             ctx.fillText(node.label, cx, cy + r + 14)
           }

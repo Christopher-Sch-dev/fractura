@@ -38,14 +38,14 @@ export function StatItem({ stat, i }: StatItemProps) {
         <StatIcon index={i} />
       </div>
       <div className="flex flex-col flex-1 min-w-0">
-        <p className="text-base md:text-xl font-black tracking-[-0.03em] leading-none text-[var(--text-main)] group-hover:text-[var(--color-primary)] transition-colors duration-500 truncate">
+        <p className="text-sm md:text-base font-black tracking-[-0.02em] leading-none text-[var(--text-main)] group-hover:text-[var(--color-primary)] transition-colors duration-500 truncate">
           {displayText}
         </p>
-        <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.35em] mt-1 group-hover:text-[var(--color-primary)] transition-colors system-heartbeat">
+        <p className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-[0.35em] mt-1 group-hover:text-[var(--color-primary)] transition-colors system-heartbeat">
           {stat.sub}
         </p>
         {stat.detail && (
-          <p className="text-[8px] text-[var(--text-muted)] font-black italic mt-0.5 group-hover:text-[var(--text-main)] transition-colors uppercase tracking-widest opacity-60">
+          <p className="text-[7px] text-[var(--text-muted)] font-black italic mt-0.5 group-hover:text-[var(--text-main)] transition-colors uppercase tracking-widest opacity-60">
             {stat.detail}
           </p>
         )}
