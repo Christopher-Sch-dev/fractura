@@ -1,6 +1,4 @@
 {
-  "projectId": "prj_OXlAguUlCr06baydNufqa3PCtidx",
   "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/dist",
-  "installCommand": "cd frontend && npm install"
+  "outputDirectory": "frontend/dist"
 }

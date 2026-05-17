@@ -1,0 +1,21 @@
+previews:
+  generation: automatic
+
+services:
+  - name: fractura-api
+    type: web
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./
+    region: oregon
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DB_MODE
+        value: duckdb
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: SLOWAPI_SILENT
+        value: "1"
+      - key: PORT
+        value: "8000"

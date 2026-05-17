@@ -1,0 +1,13 @@
+# Only exclude truly unnecessary things
+.git/
+.env
+.env.*
+*.md
+Dockerfile*
+docker-compose*
+dist/
+build/
+*.log
+.vercel/
+.next/
+node_modules/
