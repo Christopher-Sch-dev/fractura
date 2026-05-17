@@ -160,8 +160,8 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
           <div className="absolute bottom-8 left-8 w-12 h-12 border-b border-l border-[var(--border-dim)] opacity-30" />
           <div className="absolute bottom-8 right-8 w-12 h-12 border-b border-r border-[var(--border-dim)] opacity-30" />
 
-          <div className="absolute inset-0 p-8 md:p-12 flex flex-col">
-            <div className="flex justify-between items-start mb-6">
+          <div className="absolute inset-0 p-4 md:p-6 flex flex-col">
+            <div className="flex justify-between items-start mb-4">
               <span className="text-[9px] text-[var(--text-muted)] font-black tracking-[0.3em] uppercase opacity-80">SANTIAGO // CHILE_COMPARE</span>
               <div className="flex gap-4">
                 {['⬡', '◈', '●'].map((icon, idx) => (
@@ -172,7 +172,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
               </div>
             </div>
 
-            <div className="flex-1 relative mt-4 flex items-center justify-center" style={{ minHeight: 0 }}>
+            <div className="flex-1 relative mt-2 flex items-center justify-center" style={{ minHeight: 0 }}>
               <GlobeGraph
                 data={graphData}
                 loading={loading}
@@ -188,7 +188,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
               )}
             </div>
 
-            <div className="mt-8 flex items-center justify-center gap-10 border-t border-[var(--border-dim)] pt-8">
+            <div className="mt-4 flex items-center justify-center gap-8 border-t border-[var(--border-dim)] pt-6">
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 border border-[var(--color-primary)]" />
                 <span className="text-[9px] text-[var(--text-main)] font-black uppercase tracking-widest">Institución</span>

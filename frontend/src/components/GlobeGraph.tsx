@@ -40,7 +40,7 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
     if (data && fgRef.current) {
       setTimeout(() => {
         try {
-          fgRef.current.zoomToFit(400, 80)
+          fgRef.current.zoomToFit(600, 30)
           fgRef.current.centerAt(0, 0, 400)
         } catch (e) {
           // ignore if not ready
