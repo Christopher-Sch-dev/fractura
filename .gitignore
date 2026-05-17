@@ -77,3 +77,5 @@ AGENTS.md
 *-watchdog.sh
 docs/prd/
 docs/data-sources.md
+
+.vercel
