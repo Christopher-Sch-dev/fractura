@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 
 DB_MODE = os.getenv("DB_MODE", "duckdb")
-DATA_DIR = Path(os.getenv("LOCAL_DATA_PATH", str(Path(__file__).parent.parent.parent / "fractura_research" / "fractura-local-data" / "raw" / "chilecompra")))
+DATA_DIR = Path(os.getenv("LOCAL_DATA_PATH", "/app/data"))
 
 if DB_MODE == "duckdb":
     import duckdb
