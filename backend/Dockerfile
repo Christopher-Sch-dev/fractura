@@ -2,17 +2,21 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install git to clone fresh from GitHub
+# Install git to clone fresh from GitHub (bypasses Docker cache)
 RUN apt-get update && apt-get install -y --no-install-recommends git libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Clone the repo at specific commit (no cache issue)
+# Clone and setup
 RUN git clone --depth 1 https://github.com/Christopher-Sch-dev/fractura.git app_src \
-    && cp -r app_src/backend ./ \
-    && cp app_src/backend/data/data/fractura.db ./data/ 2>/dev/null || true \
+    && cp -r app_src/backend . \
+    && mkdir -p data \
+    && cp backend/data/data/fractura.db data/fractura.db 2>/dev/null || true \
     && rm -rf app_src
 
+WORKDIR /app/backend
 RUN pip install --no-cache-dir -r requirements.txt
+
+WORKDIR /app
 
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
