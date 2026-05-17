@@ -178,8 +178,8 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
                 loading={loading}
                 error={null}
                 onNodeClick={() => {}}
-                width={900}
-                height={500}
+                width={700}
+                height={420}
               />
               {!alertDismissed && (
                 <div className="absolute inset-0 z-20">

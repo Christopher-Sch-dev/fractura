@@ -38,7 +38,7 @@ export function StatItem({ stat, i }: StatItemProps) {
         <StatIcon index={i} />
       </div>
       <div className="flex flex-col flex-1 min-w-0">
-        <p className="text-lg md:text-xl font-black tracking-[-0.02em] leading-none text-[var(--text-main)] group-hover:text-[var(--color-primary)] transition-colors duration-500 truncate">
+        <p className="text-sm md:text-base font-black tracking-[-0.02em] leading-none text-[var(--text-main)] group-hover:text-[var(--color-primary)] transition-colors duration-500 truncate">
           {displayText}
         </p>
         <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.35em] mt-1 group-hover:text-[var(--color-primary)] transition-colors system-heartbeat">
