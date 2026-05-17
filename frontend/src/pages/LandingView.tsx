@@ -207,7 +207,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
 
         {/* Right: Stats */}
         <div
-          className="col-span-12 lg:col-span-2 p-6 flex flex-col bg-[var(--bg-panel)]/50 backdrop-blur-3xl transition-all duration-700 overflow-y-auto"
+          className="col-span-12 lg:col-span-2 p-5 flex flex-col bg-[var(--bg-panel)]/50 backdrop-blur-3xl transition-all duration-700"
           style={{ minHeight: 0 }}
         >
           <h3 className="text-[11px] font-black tracking-[0.5em] uppercase text-[var(--text-muted)] mb-10 pb-6 border-b border-[var(--border-dim)] flex justify-between items-center">
@@ -215,13 +215,13 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
             <span className="text-[8px] font-mono text-[var(--color-primary-60)] tracking-widest">REAL_TIME</span>
           </h3>
 
-          <div className="flex-1 space-y-3 overflow-y-auto">
+          <div className="flex-1 space-y-3">
             {stats.map((stat, idx) => (
               <StatItem key={idx} stat={stat} i={idx} />
             ))}
           </div>
 
-          <div className="mt-6 space-y-3 overflow-y-auto">
+          <div className="mt-4 space-y-3">
             {[
               { label: 'Mapa de Calor', sub: 'INTELIGENCIA TERRITORIAL' },
               { label: 'Red de Influencia', sub: 'ANÁLISIS DE GRAFOS' },
