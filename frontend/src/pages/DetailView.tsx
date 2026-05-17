@@ -68,12 +68,6 @@ export const DetailView: FC<DetailViewProps> = ({ onBack }) => {
 
       {/* Frequency Bars overlay */}
       <FrequencyBars />
-      {/* Fixed overlays */}
-      <div className="fixed inset-0 pointer-events-none z-1">
-        <div className="system-scan" />
-        <div className="fixed inset-0 spiderweb-grid" />
-        <div className="fixed inset-0 noise-overlay" />
-      </div>
 
       {/* Header */}
       <header className="h-24 px-6 md:px-12 flex items-center justify-between border-b border-[var(--border-dim)] backdrop-blur-3xl sticky top-0 z-50 bg-[var(--bg-deep)]/70">

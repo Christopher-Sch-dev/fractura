@@ -3,7 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Points, PointMaterial, Sparkles } from '@react-three/drei'
 import * as THREE from 'three'
 
-function ParticleField({ count = 4000, color = '#00E5FF', size = 0.08 }) {
+function ParticleField({ count = 5000, color = '#00E5FF', size = 0.1 }) {
   const ref = useRef<THREE.Points>(null)
   const mouse = useRef({ x: 0, y: 0 })
 
@@ -49,7 +49,7 @@ function ParticleField({ count = 4000, color = '#00E5FF', size = 0.08 }) {
         size={size}
         sizeAttenuation={true}
         depthWrite={false}
-        opacity={0.35}
+        opacity={0.5}
       />
     </Points>
   )
@@ -64,8 +64,8 @@ function FireAura() {
 
   return (
     <group ref={ref}>
-      <Sparkles count={50} scale={20} size={20} speed={0.4} opacity={0.1} color="#FF5050" />
-      <Sparkles count={30} scale={25} size={30} speed={0.2} opacity={0.05} color="#00E5FF" />
+      <Sparkles count={60} scale={20} size={20} speed={0.4} opacity={0.15} color="#FF5050" />
+      <Sparkles count={40} scale={25} size={30} speed={0.2} opacity={0.1} color="#00E5FF" />
     </group>
   )
 }
@@ -75,10 +75,12 @@ interface Background3DProps {
 }
 
 export default function Background3D({ mode = 'landing' }: Background3DProps) {
+  const count = mode === 'detail' ? 7000 : 5000
+
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.35 }}>
+    <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.6 }}>
       <Canvas camera={{ position: [0, 0, 20], fov: 60 }}>
-        <ParticleField count={mode === 'detail' ? 6000 : 4000} />
+        <ParticleField count={count} />
         {mode === 'detail' && <FireAura />}
         <ambientLight intensity={0.5} />
       </Canvas>

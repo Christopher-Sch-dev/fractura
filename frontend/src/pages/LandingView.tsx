@@ -98,9 +98,12 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
           </div>
           <button
             onClick={onExplore}
-            className="hidden md:flex items-center gap-4 bg-[var(--text-main)] text-black px-8 h-12 text-[10px] font-black tracking-[0.4em] uppercase group overflow-hidden relative"
+            className="hidden md:flex items-center gap-4 bg-transparent text-[var(--text-main)] px-8 h-12 text-[10px] font-black tracking-[0.4em] uppercase group overflow-hidden relative border border-[var(--color-primary)] hover:border-[var(--color-primary)] hover:bg-[var(--color-primary-10)] transition-all duration-300"
           >
-            <span className="relative z-10 italic">EXPLORAR_RED</span>
+            {/* Corner accents */}
+            <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-[var(--color-primary)] opacity-60" />
+            <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-[var(--color-primary)] opacity-60" />
+            <span className="relative z-10 italic group-hover:text-[var(--color-primary)] transition-colors">EXPLORAR_RED</span>
             <span className="relative z-10 group-hover:translate-x-1 transition-transform">→</span>
           </button>
         </div>
