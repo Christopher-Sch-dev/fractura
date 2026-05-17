@@ -2,18 +2,18 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Force cache invalidation by copying requirements with a date stamp
+# Use git clone approach instead of COPY
+# This ensures fresh context from Git
+ARG GIT_COMMIT=unknown
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN apt-get update && apt-get install -y --no-install-recommends libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy app files
-COPY . .
-
-# Copy database file explicitly (bypasses .gitignore in build context)
-COPY backend/data/data/fractura.db /app/data/fractura.db
+# Copy app - use git archive to avoid .gitignore filtering
+COPY backend/ ./backend/
 
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
