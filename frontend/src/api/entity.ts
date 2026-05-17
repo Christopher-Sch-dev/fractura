@@ -1,18 +1,43 @@
-import { apiFetch } from './client'
+const API_BASE = (import.meta.env.VITE_API_URL as string || '').trim() || window.location.origin
+function buildUrl(path: string): string { return API_BASE + path }
 
-export interface Entity {
+export interface EntityAlert {
+  id: string
+  tipo: string
+  mensaje: string
+  monto: string | number
+  organismo_id: string | null
+  proveedor_id: string | null
+  severity: string | null
+  patron: string | null
+  fuente: string | null
+  created_at: string | null
+}
+
+export interface EntityContract {
+  id: string
+  nombre: string
+  monto: string | number
+  fecha: string | null
+  es_td: number | null
+  tipo: string
+  relation: string
+  empresa?: string
+  organismo?: string
+}
+
+export interface EntityResponse {
   id: string
   nombre: string
   tipo: string
-  source?: string
-  neighbors: Array<{
-    id: string
-    nombre: string
-    relation: string
-    monto?: string
-  }>
+  source: string | null
+  neighbors: EntityContract[]
+  alertas: EntityAlert[]
 }
 
-export async function fetchEntity(id: string): Promise<Entity> {
-  return apiFetch<Entity>(`/entity/${encodeURIComponent(id)}`)
+export async function fetchEntity(entityId: string): Promise<EntityResponse> {
+  const url = buildUrl(`/entity/${encodeURIComponent(entityId)}`)
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`Entity ${entityId} not found`)
+  return res.json()
 }

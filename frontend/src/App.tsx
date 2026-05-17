@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom'
 import { LandingView } from './pages/LandingView'
+import { NodeView } from './pages/NodeView'
 import { DetailView } from './pages/DetailView'
 import Background3D from './components/Background3D'
 import { FrequencyBars } from './components/FrequencyBars'
@@ -33,6 +34,7 @@ function AppInner() {
       <Routes>
         <Route path="/" element={<LandingViewWrapper />} />
         <Route path="/detail" element={<DetailViewWrapper />} />
+        <Route path="/node/:nodeId" element={<NodeView />} />
       </Routes>
     </div>
   )
@@ -44,7 +46,7 @@ function LandingViewWrapper() {
 
   const handleExplore = (nodeId?: string) => {
     if (nodeId) {
-      navigate(`/detail?node=${encodeURIComponent(nodeId)}`)
+      navigate(`/node/${encodeURIComponent(nodeId)}`)
     } else {
       navigate('/detail')
     }
