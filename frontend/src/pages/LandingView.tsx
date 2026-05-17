@@ -139,8 +139,11 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
 
             <button
               onClick={onExplore}
-              className="group/btn relative w-full lg:w-auto px-10 py-5 transition-all duration-700 border border-[var(--border-dim)] hover:border-[var(--color-primary-40)] bg-[var(--bg-panel)]/20 shadow-sm hover:shadow-xl hover:shadow-[var(--color-primary-10)]"
+              className="group/btn relative w-full lg:w-auto px-10 py-5 transition-all duration-700 border border-[var(--color-primary)] bg-[var(--bg-panel)]/20 shadow-sm hover:shadow-xl hover:shadow-[var(--color-primary-10)]"
             >
+              {/* Corner accents */}
+              <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-[var(--color-primary)] opacity-60 group-hover/btn:opacity-100 transition-opacity" />
+              <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-[var(--color-primary)] opacity-60 group-hover/btn:opacity-100 transition-opacity" />
               <div className="relative flex items-center justify-center gap-8">
                 <span className="text-[11px] font-black tracking-[0.5em] group-hover:tracking-[0.6em] transition-all uppercase italic text-[var(--text-main)] group-hover:text-[var(--color-primary)]">
                   INICIAR_EXPLORACIÓN
