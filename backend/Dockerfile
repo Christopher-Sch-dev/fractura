@@ -5,7 +5,9 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends git libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 https://github.com/Christopher-Sch-dev/fractura.git app_src \
+# Clone with date stamp in comment to bust Docker cache
+RUN export GIT_DATE="$(date -u +%Y%m%d%H%M%S)" \
+    && git clone --depth 1 https://github.com/Christopher-Sch-dev/fractura.git app_src \
     && cp -r app_src/backend ./ \
     && mkdir -p data \
     && cp backend/data/data/fractura.db data/fractura.db 2>/dev/null || true \
