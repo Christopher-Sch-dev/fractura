@@ -90,7 +90,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
           </div>
           <button
             onClick={onExplore}
-            className="hidden md:flex items-center gap-4 bg-[var(--text-main)] text-[var(--bg-deep)] px-8 h-12 text-[10px] font-black tracking-[0.4em] uppercase group overflow-hidden relative"
+            className="hidden md:flex items-center gap-4 bg-[var(--text-main)] text-black px-8 h-12 text-[10px] font-black tracking-[0.4em] uppercase group overflow-hidden relative"
           >
             <span className="relative z-10 italic">EXPLORAR_RED</span>
             <span className="relative z-10 group-hover:translate-x-1 transition-transform">→</span>
@@ -114,15 +114,15 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
               <div className="flex-1 h-px bg-[var(--border-dim)] opacity-50" />
             </div>
 
-            <h2 className="text-3xl md:text-4xl xl:text-5xl font-black tracking-[-0.04em] mb-8 md:mb-10 leading-[0.95] text-[var(--text-main)] uppercase italic">
+            <h2 className="text-2xl md:text-3xl font-black tracking-[-0.04em] mb-6 md:mb-8 leading-[1] text-[var(--text-main)] uppercase italic">
               CHILE NO <br />
               TIENE FALTA <br />
-              <span className="text-[var(--text-muted)]/20">DE DATOS.</span> <br />
+              <span className="text-[var(--text-muted)] opacity-30">DE DATOS.</span> <br />
               TIENE EXCESO <br />
               DE <span className="text-[var(--color-primary)] italic">SILENCIO.</span>
             </h2>
 
-            <p className="text-[var(--text-muted)] font-bold text-sm xl:text-base mb-10 md:mb-12 max-w-sm leading-relaxed tracking-tight group-hover:text-[var(--text-main)] transition-colors">
+            <p className="text-[var(--text-muted)] text-xs xl:text-sm mb-8 md:mb-10 max-w-sm leading-relaxed tracking-tight group-hover:text-[var(--text-main)] transition-colors">
               FRACTURA identifica patrones de colusión y redes de intereses en las contrataciones públicas del Estado.
             </p>
 
