@@ -2,12 +2,14 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+# Force cache invalidation by copying requirements with a date stamp
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN apt-get update && apt-get install -y --no-install-recommends libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy app files
 COPY . .
 
 # Copy database file explicitly (bypasses .gitignore in build context)
