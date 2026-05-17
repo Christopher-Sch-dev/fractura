@@ -11,6 +11,7 @@ interface GlobeGraphProps {
   width?: number
   height?: number
   onNodeClick?: (node: GraphNode) => void
+  className?: string
 }
 
 interface HighlightState {
@@ -32,6 +33,7 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
   width = 900,
   height = 500,
   onNodeClick,
+  className,
 }) => {
   const fgRef = useRef<any>(null)
   const [highlight, setHighlight] = useState<HighlightState>({ nodeId: null, neighborIds: new Set(), linkIds: new Set() })
@@ -39,7 +41,6 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
   const handleNodeClick = useCallback((node: any) => {
     if (!fgRef.current || !data) return
 
-    // Build neighbor set from links
     const neighborIds = new Set<string>()
     const linkIds = new Set<string>()
 
@@ -55,12 +56,13 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
 
     setHighlight({ nodeId: node.id, neighborIds, linkIds })
 
-    // Zoom to fit neighborhood with padding
     try {
-      fgRef.current.zoomToFit(800, 80)
-      fgRef.current.centerAt(node.x ?? 0, node.y ?? 0, 600)
+      const nodeX = node.x ?? 0
+      const nodeY = node.y ?? 0
+      fgRef.current.centerAt(nodeX, nodeY, 400)
+      fgRef.current.zoom(2.5, 400)
     } catch (e) {
-      // ignore if not ready
+      // ignore
     }
 
     onNodeClick?.(node as GraphNode)
@@ -74,7 +76,6 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
       return
     }
 
-    // Hover: temporary highlight without zoom
     const neighborIds = new Set<string>()
     const linkIds = new Set<string>()
 
@@ -91,7 +92,6 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
     setHighlight({ nodeId: node.id, neighborIds, linkIds })
   }, [data])
 
-  // Auto-center and set initial zoom on data load
   useEffect(() => {
     if (data && fgRef.current) {
       setTimeout(() => {
@@ -99,7 +99,7 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
           fgRef.current.zoomToFit(600, 30)
           fgRef.current.centerAt(0, 0, 400)
         } catch (e) {
-          // ignore if not ready
+          // ignore
         }
       }, 200)
     }
@@ -129,114 +129,123 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
     )
   }
 
+  const containerClass = `globe-graph-container w-full h-full relative ${className ?? ''}`
+
   return (
-    <div className="globe-graph-container">
-      <div className="globe-graph-legend">
-        <div className="globe-graph-legend__item">
-          <svg width="10" height="10"><rect width="10" height="10" fill="none" stroke="#00E5FF" strokeWidth="2"/></svg>
-          <span>Organismo</span>
+    <>
+      <div className={containerClass}>
+        {/* Legend overlay at top-left */}
+        <div className="absolute top-4 left-4 z-10 flex flex-col gap-2 bg-[var(--bg-deep)]/80 border border-[var(--border-dim)] p-3">
+          <span className="text-[8px] font-black text-[var(--text-muted)] tracking-[0.3em] uppercase block mb-1">NODOS</span>
+          {([
+            { color: '#00E5FF', shape: 'rect', label: 'ORGANISMO' },
+            { color: '#E87C0A', shape: 'hex', label: 'EMPRESA' },
+            { color: '#555555', shape: 'circle', label: 'CONTRATO' },
+          ] as const).map(({ color, shape, label }) => (
+            <div key={label} className="flex items-center gap-2">
+              <svg width="12" height="12">
+                {shape === 'rect' && <rect x="1" y="1" width="10" height="10" fill="none" stroke={color} strokeWidth="2"/>}
+                {shape === 'hex' && <polygon points="6,1 11,3.5 11,8.5 6,11 1,8.5 1,3.5" fill="none" stroke={color} strokeWidth="1.5"/>}
+                {shape === 'circle' && <circle cx="6" cy="6" r="4" fill="none" stroke={color} strokeWidth="1"/>}
+              </svg>
+              <span className="text-[9px] font-mono text-[var(--text-muted)] tracking-wider">{label}</span>
+            </div>
+          ))}
         </div>
-        <div className="globe-graph-legend__item">
-          <svg width="10" height="10"><polygon points="5,0 10,2.5 10,7.5 5,10 0,7.5 0,2.5" fill="none" stroke="#E87C0A" strokeWidth="1.5"/></svg>
-          <span>Empresa</span>
-        </div>
-        <div className="globe-graph-legend__item">
-          <svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="none" stroke="#555555" strokeWidth="1"/></svg>
-          <span>Contrato</span>
-        </div>
-      </div>
-      <ForceGraph2D
-        ref={fgRef}
-        graphData={data}
-        width={width}
-        height={height}
-        backgroundColor="#0D0D0D"
-        nodeColor={(node: any) => NODE_COLORS[node.tipo] ?? '#A0A0A0'}
-        linkColor={(link: any) => {
-          const linkId = link.id ?? `${typeof link.source === 'object' ? link.source.id : link.source}-${typeof link.target === 'object' ? link.target.id : link.target}`
-          return highlight.linkIds.has(linkId) ? 'rgba(0,229,255,0.9)' : 'rgba(255,255,255,0.12)'
-        }}
-        linkWidth={(link: any) => {
-          const linkId = link.id ?? `${typeof link.source === 'object' ? link.source.id : link.source}-${typeof link.target === 'object' ? link.target.id : link.target}`
-          return highlight.linkIds.has(linkId) ? 3 : 0.8
-        }}
-        linkDirectionalParticles={0}
-        linkCurvature={0.1}
-        nodeCanvasObjectMode={() => highlight.nodeId ? 'before' : 'replace'}
-        nodeCanvasObject={(node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-          const color = NODE_COLORS[node.tipo] ?? '#A0A0A0'
-          const isOrganismo = node.tipo === 'Organismo'
-          const isEmpresa = node.tipo === 'Empresa'
-          const isHighlighted = highlight.nodeId === node.id
-          const isNeighbor = highlight.neighborIds.has(node.id)
-          const isDimmed = highlight.nodeId !== null && !isHighlighted && !isNeighbor
 
-          const dimFactor = isDimmed ? 0.2 : 1.0
-          const baseSize = isOrganismo ? 7 : isEmpresa ? 5 : 3
-          const r = Math.max(3, baseSize)
-          const cx = node.x ?? 0
-          const cy = node.y ?? 0
+        <ForceGraph2D
+          ref={fgRef}
+          graphData={data}
+          width={width}
+          height={height}
+          backgroundColor="#0D0D0D"
+          nodeColor={(node: any) => NODE_COLORS[node.tipo] ?? '#A0A0A0'}
+          linkColor={(link: any) => {
+            const linkId = link.id ?? `${typeof link.source === 'object' ? link.source.id : link.source}-${typeof link.target === 'object' ? link.target.id : link.target}`
+            return highlight.linkIds.has(linkId) ? 'rgba(0,229,255,0.9)' : 'rgba(255,255,255,0.12)'
+          }}
+          linkWidth={(link: any) => {
+            const linkId = link.id ?? `${typeof link.source === 'object' ? link.source.id : link.source}-${typeof link.target === 'object' ? link.target.id : link.target}`
+            return highlight.linkIds.has(linkId) ? 3 : 0.8
+          }}
+          linkDirectionalParticles={0}
+          linkCurvature={0.1}
+          nodeCanvasObjectMode={() => highlight.nodeId ? 'before' : 'replace'}
+          nodeCanvasObject={(node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
+            const color = NODE_COLORS[node.tipo] ?? '#A0A0A0'
+            const isOrganismo = node.tipo === 'Organismo'
+            const isEmpresa = node.tipo === 'Empresa'
+            const isHighlighted = highlight.nodeId === node.id
+            const isNeighbor = highlight.neighborIds.has(node.id)
+            const isDimmed = highlight.nodeId !== null && !isHighlighted && !isNeighbor
 
-          ctx.globalAlpha = dimFactor
+            const dimFactor = isDimmed ? 0.2 : 1.0
+            const baseSize = isOrganismo ? 7 : isEmpresa ? 5 : 3
+            const r = Math.max(3, baseSize)
+            const cx = node.x ?? 0
+            const cy = node.y ?? 0
 
-          if (isOrganismo) {
-            ctx.strokeStyle = color
-            ctx.lineWidth = isHighlighted ? 2.5 : 2
-            ctx.strokeRect(cx - r, cy - r, r * 2, r * 2)
-            if (isHighlighted || isNeighbor) {
-              ctx.strokeStyle = isHighlighted ? 'rgba(0,229,255,1)' : 'rgba(0,229,255,0.5)'
-              ctx.lineWidth = 1
-              ctx.strokeRect(cx - r - 4, cy - r - 4, (r + 4) * 2, (r + 4) * 2)
-            } else {
-              ctx.strokeStyle = 'rgba(0, 229, 255, 0.2)'
-              ctx.lineWidth = 0.5
-              ctx.strokeRect(cx - r - 3, cy - r - 3, (r + 3) * 2, (r + 3) * 2)
-            }
-          } else if (isEmpresa) {
-            ctx.strokeStyle = color
-            ctx.lineWidth = isHighlighted ? 2 : 1.5
-            ctx.beginPath()
-            for (let i = 0; i < 6; i++) {
-              const angle = (Math.PI / 3) * i - Math.PI / 6
-              const x = cx + r * Math.cos(angle)
-              const y = cy + r * Math.sin(angle)
-              i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
-            }
-            ctx.closePath()
-            ctx.stroke()
-            if (isHighlighted || isNeighbor) {
-              ctx.strokeStyle = isHighlighted ? 'rgba(232,124,10,1)' : 'rgba(232,124,10,0.5)'
-              ctx.lineWidth = 1
+            ctx.globalAlpha = dimFactor
+
+            if (isOrganismo) {
+              ctx.strokeStyle = color
+              ctx.lineWidth = isHighlighted ? 2.5 : 2
+              ctx.strokeRect(cx - r, cy - r, r * 2, r * 2)
+              if (isHighlighted || isNeighbor) {
+                ctx.strokeStyle = isHighlighted ? 'rgba(0,229,255,1)' : 'rgba(0,229,255,0.5)'
+                ctx.lineWidth = 1
+                ctx.strokeRect(cx - r - 4, cy - r - 4, (r + 4) * 2, (r + 4) * 2)
+              } else {
+                ctx.strokeStyle = 'rgba(0, 229, 255, 0.2)'
+                ctx.lineWidth = 0.5
+                ctx.strokeRect(cx - r - 3, cy - r - 3, (r + 3) * 2, (r + 3) * 2)
+              }
+            } else if (isEmpresa) {
+              ctx.strokeStyle = color
+              ctx.lineWidth = isHighlighted ? 2 : 1.5
               ctx.beginPath()
               for (let i = 0; i < 6; i++) {
                 const angle = (Math.PI / 3) * i - Math.PI / 6
-                const x = cx + (r + 4) * Math.cos(angle)
-                const y = cy + (r + 4) * Math.sin(angle)
+                const x = cx + r * Math.cos(angle)
+                const y = cy + r * Math.sin(angle)
                 i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
               }
               ctx.closePath()
               ctx.stroke()
+              if (isHighlighted || isNeighbor) {
+                ctx.strokeStyle = isHighlighted ? 'rgba(232,124,10,1)' : 'rgba(232,124,10,0.5)'
+                ctx.lineWidth = 1
+                ctx.beginPath()
+                for (let i = 0; i < 6; i++) {
+                  const angle = (Math.PI / 3) * i - Math.PI / 6
+                  const x = cx + (r + 4) * Math.cos(angle)
+                  const y = cy + (r + 4) * Math.sin(angle)
+                  i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+                }
+                ctx.closePath()
+                ctx.stroke()
+              }
+            } else {
+              ctx.strokeStyle = color
+              ctx.lineWidth = isHighlighted ? 1.5 : 1
+              ctx.beginPath()
+              ctx.arc(cx, cy, r, 0, 2 * Math.PI)
+              ctx.stroke()
             }
-          } else {
-            ctx.strokeStyle = color
-            ctx.lineWidth = isHighlighted ? 1.5 : 1
-            ctx.beginPath()
-            ctx.arc(cx, cy, r, 0, 2 * Math.PI)
-            ctx.stroke()
-          }
 
-          if (isOrganismo && globalScale >= 0.6 && !isDimmed) {
-            ctx.font = `${11}px JetBrains Mono, monospace`
-            ctx.fillStyle = isHighlighted ? 'rgba(0, 229, 255, 1)' : 'rgba(0, 229, 255, 0.7)'
-            ctx.textAlign = 'center'
-            ctx.fillText(node.label, cx, cy + r + 14)
-          }
+            if (isOrganismo && globalScale >= 0.6 && !isDimmed) {
+              ctx.font = `${11}px JetBrains Mono, monospace`
+              ctx.fillStyle = isHighlighted ? 'rgba(0, 229, 255, 1)' : 'rgba(0, 229, 255, 0.7)'
+              ctx.textAlign = 'center'
+              ctx.fillText(node.label, cx, cy + r + 14)
+            }
 
-          ctx.globalAlpha = 1
-        }}
-        onNodeClick={handleNodeClick}
-        onNodeHover={handleNodeHover}
-      />
-    </div>
+            ctx.globalAlpha = 1
+          }}
+          onNodeClick={handleNodeClick}
+          onNodeHover={handleNodeHover}
+        />
+      </div>
+    </>
   )
 }

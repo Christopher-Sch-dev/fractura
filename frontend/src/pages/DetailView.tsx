@@ -174,7 +174,7 @@ export const DetailView: FC<DetailViewProps> = ({ onBack, initialNodeId }) => {
                     return (
                       <tr
                         key={alert.id}
-                        onClick={() => setSelectedAlert(isSelected ? null : alert)}
+                        onClick={() => { setSelectedAlert(isSelected ? null : alert); if (!isSelected) setAlertDetailModal(alert); }}
                         className={`cursor-pointer transition-all duration-300 border-l-[3px] ${
                           isSelected
                             ? 'border-l-[var(--color-alert)] bg-[rgba(255,42,42,0.05)]'
