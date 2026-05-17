@@ -1,9 +1,7 @@
 import { type FC, useState, useEffect } from 'react'
 import { GlobeGraph } from '../components/GlobeGraph'
-import Background3D from '../components/Background3D'
 import { StatItem } from '../components/StatItem'
 import Logo from '../components/Logo'
-import { FrequencyBars } from '../components/FrequencyBars'
 import type { GraphData } from '../api/graph'
 import type { Alerta } from '../api/alerts'
 import { fetchGraph } from '../api/graph'
@@ -67,13 +65,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
         <div className="fixed inset-0 noise-overlay" />
       </div>
 
-      {/* 3D Particle Background - fixed behind content */}
-      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
-        <Background3D mode="landing" />
-      </div>
-
-      {/* Frequency Bars overlay */}
-      <FrequencyBars mode="landing" />
+      {/* 3D Particle Background and FrequencyBars now live in App.tsx (shared global layer) */}
 
       {/* Top navigation bar */}
       <nav className="h-20 px-6 md:px-10 flex items-center justify-between border-b border-[var(--border-dim)] backdrop-blur-3xl sticky top-0 z-50 bg-[var(--bg-deep)]/70">

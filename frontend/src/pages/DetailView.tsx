@@ -1,7 +1,5 @@
 import { type FC, useState, useEffect } from 'react'
 import Logo from '../components/Logo'
-import Background3D from '../components/Background3D'
-import { FrequencyBars } from '../components/FrequencyBars'
 import type { Alerta } from '../api/alerts'
 import { fetchAlerts } from '../api/alerts'
 
@@ -56,20 +54,12 @@ export const DetailView: FC<DetailViewProps> = ({ onBack }) => {
   return (
     <div className="h-screen flex flex-col font-sans bg-[var(--bg-deep)] relative overflow-hidden">
 
-      {/* Fixed overlays */}
+      {/* Fixed overlays (CSS effects only - Background3D lives in App.tsx) */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1 }}>
         <div className="system-scan" />
         <div className="fixed inset-0 spiderweb-grid" />
         <div className="fixed inset-0 noise-overlay" />
       </div>
-
-      {/* 3D Particle Background - fixed behind content */}
-      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
-        <Background3D mode="detail" />
-      </div>
-
-      {/* Frequency Bars overlay */}
-      <FrequencyBars mode="detail" />
 
       {/* Header */}
       <header className="h-24 px-6 md:px-12 flex items-center justify-between border-b border-[var(--border-dim)] backdrop-blur-3xl sticky top-0 z-50 bg-[var(--bg-deep)]/70">
