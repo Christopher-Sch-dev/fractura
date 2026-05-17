@@ -70,3 +70,10 @@ credentials/
 # Graphify output
 graphify-out/
 frontend/graphify-out/
+
+# Agent / internal notes (block from public repo)
+AGENT.md
+AGENTS.md
+*-watchdog.sh
+docs/prd/
+docs/data-sources.md
