@@ -12,11 +12,9 @@ RUN git clone --depth 1 https://github.com/Christopher-Sch-dev/fractura.git app_
     && rm -rf app_src
 
 WORKDIR /app/backend
+ENV PYTHONPATH=/app
 RUN pip install --no-cache-dir -r requirements.txt
 
-WORKDIR /app
-
-ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV LOCAL_DATA_PATH=/app/data
 
