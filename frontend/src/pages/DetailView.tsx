@@ -67,7 +67,7 @@ export const DetailView: FC<DetailViewProps> = ({ onBack }) => {
       <Background3D mode="detail" />
 
       {/* Frequency Bars overlay */}
-      <FrequencyBars />
+      <FrequencyBars mode="detail" />
 
       {/* Header */}
       <header className="h-24 px-6 md:px-12 flex items-center justify-between border-b border-[var(--border-dim)] backdrop-blur-3xl sticky top-0 z-50 bg-[var(--bg-deep)]/70">

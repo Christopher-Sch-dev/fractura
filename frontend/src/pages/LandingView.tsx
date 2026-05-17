@@ -71,7 +71,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
       <Background3D mode="landing" />
 
       {/* Frequency Bars overlay */}
-      <FrequencyBars />
+      <FrequencyBars mode="landing" />
 
       {/* Top navigation bar */}
       <nav className="h-20 px-6 md:px-10 flex items-center justify-between border-b border-[var(--border-dim)] backdrop-blur-3xl sticky top-0 z-50 bg-[var(--bg-deep)]/70">

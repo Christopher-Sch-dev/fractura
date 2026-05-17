@@ -3,7 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Points, PointMaterial, Sparkles } from '@react-three/drei'
 import * as THREE from 'three'
 
-function ParticleField({ count = 5000, color = '#00E5FF', size = 0.1 }) {
+function ParticleField({ count = 5000, color = '#00E5FF', size = 0.1, mode = 'landing' }: { count?: number; color?: string; size?: number; mode?: string }) {
   const ref = useRef<THREE.Points>(null)
   const mouse = useRef({ x: 0, y: 0 })
 
@@ -49,23 +49,28 @@ function ParticleField({ count = 5000, color = '#00E5FF', size = 0.1 }) {
         size={size}
         sizeAttenuation={true}
         depthWrite={false}
-        opacity={0.5}
+        opacity={mode === 'detail' ? 0.6 : 0.5}
       />
     </Points>
   )
 }
 
-function FireAura() {
+function DangerAura() {
   const ref = useRef<THREE.Group>(null)
 
-  useFrame(() => {
-    if (ref.current) ref.current.rotation.z += 0.001
+  useFrame((state) => {
+    if (ref.current) {
+      ref.current.rotation.z += 0.002
+      const pulse = 1 + Math.sin(state.clock.getElapsedTime() * 2) * 0.15
+      ref.current.scale.setScalar(pulse)
+    }
   })
 
   return (
     <group ref={ref}>
-      <Sparkles count={60} scale={20} size={20} speed={0.4} opacity={0.15} color="#FF5050" />
-      <Sparkles count={40} scale={25} size={30} speed={0.2} opacity={0.1} color="#00E5FF" />
+      <Sparkles count={80} scale={25} size={15} speed={0.3} opacity={0.25} color="#FF2020" />
+      <Sparkles count={60} scale={30} size={25} speed={0.15} opacity={0.15} color="#FF0040" />
+      <Sparkles count={40} scale={20} size={20} speed={0.5} opacity={0.2} color="#00E5FF" />
     </group>
   )
 }
@@ -76,12 +81,13 @@ interface Background3DProps {
 
 export default function Background3D({ mode = 'landing' }: Background3DProps) {
   const count = mode === 'detail' ? 7000 : 5000
+  const particleColor = mode === 'detail' ? '#FF4060' : '#00E5FF'
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.6 }}>
+    <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: mode === 'detail' ? 0.7 : 0.6 }}>
       <Canvas camera={{ position: [0, 0, 20], fov: 60 }}>
-        <ParticleField count={count} />
-        {mode === 'detail' && <FireAura />}
+        <ParticleField count={count} color={particleColor} mode={mode} />
+        {mode === 'detail' && <DangerAura />}
         <ambientLight intensity={0.5} />
       </Canvas>
     </div>
