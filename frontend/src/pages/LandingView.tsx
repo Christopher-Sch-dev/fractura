@@ -56,7 +56,8 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
   const dateStr = `${pad(currentTime.getDate())}/${pad(currentTime.getMonth() + 1)}/${currentTime.getFullYear()}`
 
   return (
-    <div className="min-h-screen flex flex-col font-sans selection:bg-[var(--color-primary-20)] selection:text-[var(--text-bright)] transition-colors duration-700 overflow-x-hidden relative">
+    <div className="h-screen flex flex-col font-sans selection:bg-[var(--color-primary-20)] selection:text-[var(--text-bright)] transition-colors duration-700 relative overflow-hidden">
+
       {/* Fixed overlays */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1 }}>
         <div className="system-scan" />
@@ -98,12 +99,12 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
       </nav>
 
       {/* Main content grid */}
-      <main className="flex-1 grid grid-cols-12 gap-0 overflow-y-auto lg:overflow-hidden" style={{ gridTemplateColumns: 'repeat(12, 1fr)' }}>
+      <main className="flex-1 grid gap-0 overflow-hidden" style={{ gridTemplateColumns: 'repeat(12, 1fr)', gridTemplateRows: '1fr' }}>
 
         {/* Left: Narrative */}
         <div
-          className="col-span-12 lg:col-span-4 p-8 md:p-12 xl:p-16 border-b lg:border-b-0 lg:border-r border-[var(--border-dim)] flex flex-col justify-center relative overflow-hidden group min-h-[500px] lg:min-h-0"
-          style={{ background: 'rgba(255,255,255,0.02)' }}
+          className="col-span-12 lg:col-span-4 p-8 md:p-12 xl:p-16 border-b lg:border-b-0 lg:border-r border-[var(--border-dim)] flex flex-col justify-center relative overflow-hidden group"
+          style={{ minHeight: 0 }}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_40%_50%,var(--color-primary),transparent)] opacity-[0.04]" />
 
@@ -113,7 +114,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
               <div className="flex-1 h-px bg-[var(--border-dim)] opacity-50" />
             </div>
 
-            <h2 className="text-4xl md:text-5xl xl:text-6xl font-black tracking-[-0.1em] mb-8 md:mb-10 leading-[0.9] text-[var(--text-main)] uppercase italic">
+            <h2 className="text-3xl md:text-4xl xl:text-5xl font-black tracking-[-0.04em] mb-8 md:mb-10 leading-[0.95] text-[var(--text-main)] uppercase italic">
               CHILE NO <br />
               TIENE FALTA <br />
               <span className="text-[var(--text-muted)]/20">DE DATOS.</span> <br />
@@ -150,13 +151,16 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
         </div>
 
         {/* Center: Graph */}
-        <div className="col-span-12 lg:col-span-6 relative border-r border-[var(--border-dim)] bg-[var(--bg-deep)] transition-all duration-700">
+        <div
+          className="col-span-12 lg:col-span-6 relative border-r border-[var(--border-dim)] bg-[var(--bg-panel)] overflow-hidden flex flex-col"
+          style={{ minHeight: 0 }}
+        >
           <div className="absolute top-8 left-8 w-12 h-12 border-t border-l border-[var(--border-dim)] opacity-30" />
           <div className="absolute top-8 right-8 w-12 h-12 border-t border-r border-[var(--border-dim)] opacity-30" />
           <div className="absolute bottom-8 left-8 w-12 h-12 border-b border-l border-[var(--border-dim)] opacity-30" />
           <div className="absolute bottom-8 right-8 w-12 h-12 border-b border-r border-[var(--border-dim)] opacity-30" />
 
-          <div className="absolute inset-0 p-12 flex flex-col">
+          <div className="absolute inset-0 p-8 md:p-12 flex flex-col">
             <div className="flex justify-between items-start mb-6">
               <span className="text-[9px] text-[var(--text-muted)] font-black tracking-[0.3em] uppercase opacity-80">SANTIAGO // CHILE_COMPARE</span>
               <div className="flex gap-4">
@@ -168,12 +172,14 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
               </div>
             </div>
 
-            <div className="flex-1 relative mt-4 overflow-hidden" style={{ minHeight: 300 }}>
+            <div className="flex-1 relative mt-4 flex items-center justify-center" style={{ minHeight: 0 }}>
               <GlobeGraph
                 data={graphData}
                 loading={loading}
                 error={null}
                 onNodeClick={() => {}}
+                width={700}
+                height={400}
               />
               {!alertDismissed && (
                 <div className="absolute inset-0 z-20">
@@ -200,19 +206,22 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
         </div>
 
         {/* Right: Stats */}
-        <div className="col-span-12 lg:col-span-2 p-8 flex flex-col bg-[var(--bg-panel)]/50 backdrop-blur-3xl transition-all duration-700">
+        <div
+          className="col-span-12 lg:col-span-2 p-6 flex flex-col bg-[var(--bg-panel)]/50 backdrop-blur-3xl transition-all duration-700 overflow-y-auto"
+          style={{ minHeight: 0 }}
+        >
           <h3 className="text-[11px] font-black tracking-[0.5em] uppercase text-[var(--text-muted)] mb-10 pb-6 border-b border-[var(--border-dim)] flex justify-between items-center">
             PULSE_DATA
             <span className="text-[8px] font-mono text-[var(--color-primary-60)] tracking-widest">REAL_TIME</span>
           </h3>
 
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-3 overflow-y-auto">
             {stats.map((stat, idx) => (
               <StatItem key={idx} stat={stat} i={idx} />
             ))}
           </div>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-6 space-y-3 overflow-y-auto">
             {[
               { label: 'Mapa de Calor', sub: 'INTELIGENCIA TERRITORIAL' },
               { label: 'Red de Influencia', sub: 'ANÁLISIS DE GRAFOS' },
@@ -253,7 +262,6 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
   )
 }
 
-// Alert overlay with its own dismissed state
 function AlertOverlayWithDismiss({ alerts, onDismiss }: { alerts: Alerta[]; onDismiss: () => void }) {
   const [dismissed, setDismissed] = useState(false)
 

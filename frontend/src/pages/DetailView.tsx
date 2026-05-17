@@ -52,7 +52,7 @@ export const DetailView: FC<DetailViewProps> = ({ onBack }) => {
   const highCount = alerts.filter(a => a.severidad === 'high').length
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-[var(--bg-deep)] overflow-x-hidden relative">
+    <div className="h-screen flex flex-col font-sans bg-[var(--bg-deep)] relative overflow-hidden">
       {/* Fixed overlays */}
       <div className="fixed inset-0 pointer-events-none z-1">
         <div className="system-scan" />
@@ -189,13 +189,13 @@ export const DetailView: FC<DetailViewProps> = ({ onBack }) => {
         </div>
 
         {/* Right: Stats panel — 5 cols */}
-        <div className="col-span-12 lg:col-span-5 p-10 bg-[var(--bg-panel)]/40 backdrop-blur-3xl overflow-y-auto">
+        <div className="col-span-12 lg:col-span-5 p-6 bg-[var(--bg-panel)]/40 backdrop-blur-3xl overflow-y-auto flex flex-col" style={{ minHeight: 0 }}>
           <h3 className="text-[11px] font-black tracking-[0.5em] uppercase text-[var(--text-muted)] mb-10 pb-6 border-b border-[var(--border-dim)]">
             RESUMEN_DETECCIÓN
           </h3>
 
           {/* Summary stats */}
-          <div className="space-y-8 mb-12">
+          <div className="flex-1 overflow-y-auto space-y-6">
             <div className="border border-[var(--border-dim)] p-6">
               <p className="text-[9px] text-[var(--text-muted)] font-black tracking-[0.3em] uppercase mb-2">TOTAL ALERTAS</p>
               <p className="text-4xl font-black text-[var(--text-main)] font-mono">{alerts.length}</p>
