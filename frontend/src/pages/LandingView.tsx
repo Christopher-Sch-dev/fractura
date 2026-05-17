@@ -18,7 +18,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [alertDismissed, setAlertDismissed] = useState(false)
   const [testMode, setTestMode] = useState(false)
-  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
+  const [selectedNode] = useState<GraphNode | null>(null)
 
   useEffect(() => {
     if (alerts.length > 0 && alerts.length < 200) {
@@ -205,7 +205,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
                 data={graphData}
                 loading={loading}
                 error={null}
-                onNodeClick={(node) => setSelectedNode(node)}
+                onNodeClick={(node) => onExplore(node.id)}
                 width={780}
                 height={480}
               />
