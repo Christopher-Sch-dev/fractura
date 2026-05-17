@@ -1,11 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from backend.limiter import limiter
 from backend.models import SeedResponse
 from backend.loaders.corrupcion import load_corrupcion_chile, run_detection_corrupcion
 
 router = APIRouter()
 
 @router.post("/seed")
-def seed():
+@limiter.limit("30/minute")
+def seed(request: Request):
     try:
         casos, entidades = load_corrupcion_chile()
         alertas = run_detection_corrupcion()

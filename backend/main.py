@@ -5,7 +5,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 import time
+
+# Rate limiting — imported from backend.limiter to avoid circular import
+from backend.limiter import limiter
 
 # Logging setup
 logger = logging.getLogger("fractura")
@@ -38,6 +43,8 @@ async def lifespan(app: FastAPI):
     close_db()
 
 app = FastAPI(title="FRACTURA API", version="0.3.0", lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.middleware("http")(log_request)
 

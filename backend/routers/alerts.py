@@ -1,13 +1,13 @@
-from fastapi import APIRouter, HTTPException
-from backend.main import logger
+from fastapi import APIRouter, HTTPException, Request
+from backend.limiter import limiter
 from backend.models import AlertaResponse
 from backend.db import get_db
 
 router = APIRouter()
 
 @router.get("/alerts/{alert_id}")
-def get_alert_by_id(alert_id: str):
-    logger.info(f"GET /alerts/{alert_id}")
+@limiter.limit("60/minute")
+def get_alert_by_id(request: Request, alert_id: str):
     try:
         db = get_db()
         row = db.execute("""
@@ -38,7 +38,8 @@ def get_alert_by_id(alert_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/alerts")
-def get_alerts():
+@limiter.limit("60/minute")
+def get_alerts(request: Request):
     try:
         db = get_db()
         result = db.execute("""

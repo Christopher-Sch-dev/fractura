@@ -1,21 +1,21 @@
-from fastapi import APIRouter, HTTPException, Query
-from backend.main import logger
+from fastapi import APIRouter, HTTPException, Query, Request
+from backend.limiter import limiter
 from backend.db import get_db
 
 router = APIRouter()
 
 @router.get("/graph/chilecompra")
+@limiter.limit("60/minute")
 def graph_chilecompra(
+    request: Request,
     node_id: str = Query(default=None, description="RUT/id del nodo centro (opcional)"),
     limit: int = Query(default=200, ge=1, le=500),
     fuente: str = Query(default=None),
 ):
     try:
         db = get_db()
-        logger.info(f"GET /graph/chilecompra limit={limit} node_id={node_id}")
 
         if node_id:
-            # Vecinos del nodo específico
             org_match = db.execute("SELECT rut FROM organismo WHERE rut = ?", (node_id,)).fetchone()
             emp_match = db.execute("SELECT id FROM empresa WHERE id = ?", (node_id,)).fetchone()
 
@@ -29,12 +29,10 @@ def graph_chilecompra(
                 """, (org_rut, limit)).fetchall()
                 node_ids = set()
                 for l in links:
-                    node_ids.add(l[0])  # organismo
-                    node_ids.add(l[1])  # proveedor
-                    node_ids.add(l[2])  # contrato
-
+                    node_ids.add(l[0])
+                    node_ids.add(l[1])
+                    node_ids.add(l[2])
                 nodes = _fetch_nodes_batch(db, node_ids)
-
                 graph_links = [{"source": l[0], "target": l[1]} for l in links]
 
             elif emp_match:
@@ -50,16 +48,13 @@ def graph_chilecompra(
                     node_ids.add(l[0])
                     node_ids.add(l[1])
                     node_ids.add(l[2])
-
                 nodes = _fetch_nodes_batch(db, node_ids)
-
                 graph_links = [{"source": l[0], "target": l[1]} for l in links]
 
             else:
                 raise HTTPException(status_code=404, detail="Nodo no encontrado")
 
         else:
-            # Grafo completo — organismos + empresas + contratos del slice
             if fuente:
                 contracts = db.execute("""
                     SELECT DISTINCT c.organismo_id, c.proveedor_id, c.id
@@ -79,9 +74,7 @@ def graph_chilecompra(
                 node_ids.add(l[0])
                 node_ids.add(l[1])
                 node_ids.add(l[2])
-
             nodes = _fetch_nodes_batch(db, node_ids)
-
             graph_links = [{"source": l[0], "target": l[1]} for l in contracts]
 
         return {"nodes": nodes, "links": graph_links}
@@ -92,11 +85,9 @@ def graph_chilecompra(
 
 
 def _fetch_nodes_batch(db, node_ids: set) -> list[dict]:
-    """Fetch all nodes in a single query instead of N queries with UNION ALL."""
     if not node_ids:
         return []
 
-    # Single query with UNION ALL — 1 query total instead of N*3
     placeholders = ", ".join(["?"] * len(node_ids))
     nid_list = list(node_ids)
 

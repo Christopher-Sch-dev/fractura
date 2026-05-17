@@ -17,6 +17,15 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
   const [loading, setLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [alertDismissed, setAlertDismissed] = useState(false)
+  const [testMode, setTestMode] = useState(false)
+
+  useEffect(() => {
+    if (alerts.length > 0 && alerts.length < 200) {
+      setTestMode(true)
+    } else {
+      setTestMode(false)
+    }
+  }, [alerts])
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -85,10 +94,17 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
             <div className="flex items-center gap-3 py-3 px-6 border border-[var(--border-dim)]">
               <span className="text-[12px] text-[var(--text-main)] font-black tracking-widest">{dateStr}</span>
             </div>
-            <div className="flex items-center gap-3 py-3 px-6 bg-[var(--color-primary-10)] border border-[var(--color-primary-20)]">
-              <div className="w-2 h-2 bg-[var(--color-primary)] rounded-full animate-pulse" />
-              <span className="text-[var(--color-primary)] text-[11px] font-black uppercase tracking-widest">CONEXIÓN_ESTABLE</span>
-            </div>
+            {testMode ? (
+              <div className="flex items-center gap-3 py-3 px-6 bg-[var(--color-brand-red)]/10 border border-[var(--color-brand-red)]/40">
+                <div className="w-2 h-2 bg-[var(--color-brand-red)] rounded-full animate-pulse" />
+                <span className="text-[var(--color-brand-red)] text-[11px] font-black uppercase tracking-widest">⚠ MODO PRUEBA</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 py-3 px-6 bg-[var(--color-primary-10)] border border-[var(--color-primary-20)]">
+                <div className="w-2 h-2 bg-[var(--color-primary)] rounded-full animate-pulse" />
+                <span className="text-[var(--color-primary)] text-[11px] font-black uppercase tracking-widest">CONEXIÓN_ESTABLE</span>
+              </div>
+            )}
           </div>
           <button
             onClick={onExplore}

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
+from backend.limiter import limiter
 from backend.models import SeedResponse, DetectionResponse, AlertaItem
 from backend.loaders.chilecompra import load_chilecompra_slice, run_detection
 from backend.db import get_db
@@ -6,7 +7,8 @@ from backend.db import get_db
 router = APIRouter()
 
 @router.post("/seed/chilecompra")
-def seed_chilecompra(year: int = 2023, month: int = 1, limit: int = 0):
+@limiter.limit("30/minute")
+def seed_chilecompra(request: Request, year: int = 2023, month: int = 1, limit: int = 0):
     try:
         result = load_chilecompra_slice(year, month, limit=limit)
         if "error" in result:
@@ -24,7 +26,8 @@ def seed_chilecompra(year: int = 2023, month: int = 1, limit: int = 0):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/detect/chilecompra")
-def detect_chilecompra(fuente: str = None):
+@limiter.limit("30/minute")
+def detect_chilecompra(request: Request, fuente: str = None):
     try:
         result = run_detection(fuente=fuente)
         return result
@@ -32,7 +35,9 @@ def detect_chilecompra(fuente: str = None):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/alerts/chilecompra")
+@limiter.limit("60/minute")
 def alerts_chilecompra(
+    request: Request,
     patron: str = Query(default=None, description="recurrente|fraccionamiento|multi-org"),
     limit: int = Query(default=50, le=500),
     fuente: str = Query(default=None),
