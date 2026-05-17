@@ -1,7 +1,9 @@
 .git
-node_modules
+.gitignore
+*.md
+.env
 __pycache__
 *.pyc
-.gitignore
-README.md
-*.md
+.pytest_cache
+.coverage
+htmlcov
