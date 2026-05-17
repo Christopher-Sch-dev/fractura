@@ -205,10 +205,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
                 data={graphData}
                 loading={loading}
                 error={null}
-                onNodeClick={(node) => {
-                  setSelectedNode(node)
-                  onExplore(node.id)
-                }}
+                onNodeClick={(node) => setSelectedNode(node)}
                 width={700}
                 height={420}
               />

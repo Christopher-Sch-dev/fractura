@@ -80,7 +80,6 @@ export const Dashboard: FC = () => {
               alertas={alertas}
               loading={loading}
               error={error}
-              onAlertClick={(a) => setSelectedAlert(a)}
             />
           </div>
         </section>
@@ -95,7 +94,6 @@ export const Dashboard: FC = () => {
               onNodeClick={(node: GraphNode) => {
                 setFocusNodeId(node.id)
               }}
-              onAlertClick={(a) => setSelectedAlert(a)}
             />
           </div>
         </section>
