@@ -53,6 +53,7 @@ app.add_middleware(
     allow_origins=[
         "https://fractura.vercel.app",
         "https://fracturaclonado.vercel.app",
+        "https://fffractura.vercel.app",
         "https://fracturaclonado-qa9b2no0p-jobhunteraai.vercel.app",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
