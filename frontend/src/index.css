@@ -173,3 +173,44 @@ input:focus, textarea:focus, select:focus {
   color: #00E5FF;
   border: 1px solid rgba(0,229,255,0.2);
 }
+
+/* === FRACTURA EFFECTS === */
+.system-scan {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 229, 255, 0.015) 2px,
+    rgba(0, 229, 255, 0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Stronger spiderweb grid */
+.spiderweb-grid {
+  background-image:
+    radial-gradient(circle at 2px 2px, var(--border-dim) 1px, transparent 0),
+    linear-gradient(45deg, transparent 49.5%, var(--border-dim) 50%, transparent 50.5%),
+    linear-gradient(-45deg, transparent 49.5%, var(--border-dim) 50%, transparent 50.5%),
+    repeating-linear-gradient(90deg, transparent, transparent 38px, var(--border-dim) 40px);
+  background-size: 40px 40px, 80px 80px, 80px 80px, 40px 100%;
+  opacity: 0.18;
+  mix-blend-mode: screen;
+}
+
+/* Stronger noise overlay */
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* Background radial glow on main content area */
+.fractura-glow-bg {
+  background: radial-gradient(ellipse at 30% 60%, rgba(0, 229, 255, 0.04) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 30%, rgba(255, 42, 42, 0.03) 0%, transparent 50%);
+}

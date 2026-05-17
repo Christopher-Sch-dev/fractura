@@ -1,22 +1,19 @@
 .globe-graph {
-  background: #050505;
+  background: var(--bg-deep);
   position: relative;
 }
 
-.globe-graph__overlay {
+.globe-graph-loading {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(5, 5, 5, 0.7);
   z-index: 10;
 }
 
-.globe-graph__overlay--loading {
-  background: rgba(5, 5, 5, 0.7);
-}
-
-.globe-graph__loading-text {
+.globe-graph-loading__text {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.15em;
@@ -30,11 +27,17 @@
   50% { opacity: 0.3; }
 }
 
-.globe-graph__overlay--error {
+.globe-graph-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(5, 5, 5, 0.8);
+  z-index: 10;
 }
 
-.globe-graph__error-text {
+.globe-graph-error__text {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.1em;
@@ -42,11 +45,17 @@
   text-transform: uppercase;
 }
 
-.globe-graph__overlay--empty {
+.globe-graph-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(5, 5, 5, 0.5);
+  z-index: 10;
 }
 
-.globe-graph__empty-text {
+.globe-graph-empty__text {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   letter-spacing: 0.12em;
@@ -66,9 +75,10 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: rgba(5, 5, 5, 0.75);
+  background: rgba(5, 5, 5, 0.8);
   border: 1px solid var(--color-primary-20);
   padding: 8px 12px;
+  z-index: 5;
 }
 
 .globe-graph__legend-item {
