@@ -1,7 +1,7 @@
 import csv
 import os
 from pathlib import Path
-from backend.db import get_db
+from db import get_db
 
 DATA_PATH = Path(os.getenv("CORRUPCION_DATA_PATH", str(Path(__file__).parent.parent.parent / "fractura_research" / "fractura-local-data" / "raw" / "corrupcion_chile" / "casos_corrupcion_chile.csv")))
 

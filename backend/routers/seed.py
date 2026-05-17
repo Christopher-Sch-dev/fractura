@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request
-from backend.limiter import limiter
-from backend.models import SeedResponse
-from backend.loaders.corrupcion import load_corrupcion_chile, run_detection_corrupcion
+from limiter import limiter
+from models import SeedResponse
+from loaders.corrupcion import load_corrupcion_chile, run_detection_corrupcion
 
 router = APIRouter()
 

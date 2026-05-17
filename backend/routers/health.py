@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request
-from backend.models import HealthResponse
-from backend.db import get_db
-from backend.loaders.chilecompra import TEST_MODE_THRESHOLD
+from models import HealthResponse
+from db import get_db
+from loaders.chilecompra import TEST_MODE_THRESHOLD
 import os
 
 router = APIRouter()

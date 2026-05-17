@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query, Request
-from backend.limiter import limiter
-from backend.db import get_db
+from limiter import limiter
+from db import get_db
 
 router = APIRouter()
 

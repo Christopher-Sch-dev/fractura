@@ -9,8 +9,8 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 import time
 
-# Rate limiting — imported from backend.limiter to avoid circular import
-from backend.limiter import limiter
+# Rate limiting — imported from limiter to avoid circular import
+from limiter import limiter
 
 # Logging setup
 logger = logging.getLogger("fractura")
@@ -29,13 +29,13 @@ def log_request(req: Request, call_next):
     return res
 
 
-from backend.routers import health, seed, alerts, entity, chilecompra, graph
-from backend.db import close_db, get_db
+from routers import health, seed, alerts, entity, chilecompra, graph
+from db import close_db, get_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if os.getenv("DB_MODE") == "postgres":
-        from backend.db import get_db as _get_db_async
+        from db import get_db as _get_db_async
         pool = await _get_db_async()
     else:
         db = get_db()

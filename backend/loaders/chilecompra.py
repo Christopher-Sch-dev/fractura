@@ -2,7 +2,7 @@ import zipfile, tempfile, os
 import duckdb
 import pandas as pd
 from pathlib import Path
-from backend.db import get_db
+from db import get_db
 
 DATA_ROOT = Path(os.getenv("LOCAL_DATA_PATH", "/app/data"))
 

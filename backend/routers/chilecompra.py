@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Query, Request
-from backend.limiter import limiter
-from backend.models import SeedResponse, DetectionResponse, AlertaItem
-from backend.loaders.chilecompra import load_chilecompra_slice, run_detection
-from backend.db import get_db
+from limiter import limiter
+from models import SeedResponse, DetectionResponse, AlertaItem
+from loaders.chilecompra import load_chilecompra_slice, run_detection
+from db import get_db
 
 router = APIRouter()
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request
-from backend.limiter import limiter
-from backend.models import EntityResponse
-from backend.db import get_db
+from limiter import limiter
+from models import EntityResponse
+from db import get_db
 
 router = APIRouter()
 
