@@ -10,8 +10,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends libstdc++6 \
 
 COPY . .
 
+# Copy database file explicitly (bypasses .gitignore in build context)
+COPY backend/data/data/fractura.db /app/data/fractura.db
+
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
+ENV LOCAL_DATA_PATH=/app/data
 
 EXPOSE 8000
 
