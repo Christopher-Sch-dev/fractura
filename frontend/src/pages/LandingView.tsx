@@ -117,7 +117,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
             <h2 className="text-2xl md:text-3xl font-black tracking-[-0.04em] mb-6 md:mb-8 leading-[1] text-[var(--text-main)] uppercase italic">
               CHILE NO <br />
               TIENE FALTA <br />
-              <span className="text-[var(--text-muted)] opacity-30">DE DATOS.</span> <br />
+              <span className="text-[var(--text-muted)]">DE DATOS.</span> <br />
               TIENE EXCESO <br />
               DE <span className="text-[var(--color-primary)] italic">SILENCIO.</span>
             </h2>
@@ -178,8 +178,8 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
                 loading={loading}
                 error={null}
                 onNodeClick={() => {}}
-                width={700}
-                height={400}
+                width={900}
+                height={500}
               />
               {!alertDismissed && (
                 <div className="absolute inset-0 z-20">
