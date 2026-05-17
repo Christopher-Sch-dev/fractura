@@ -1,7 +1,9 @@
 import { type FC, useState, useEffect } from 'react'
 import { GlobeGraph } from '../components/GlobeGraph'
+import Background3D from '../components/Background3D'
 import { StatItem } from '../components/StatItem'
 import Logo from '../components/Logo'
+import { FrequencyBars } from '../components/FrequencyBars'
 import type { GraphData } from '../api/graph'
 import type { Alerta } from '../api/alerts'
 import { fetchGraph } from '../api/graph'
@@ -64,6 +66,12 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
         <div className="fixed inset-0 spiderweb-grid" />
         <div className="fixed inset-0 noise-overlay" />
       </div>
+
+      {/* 3D Particle Background */}
+      <Background3D mode="landing" />
+
+      {/* Frequency Bars overlay */}
+      <FrequencyBars />
 
       {/* Top navigation bar */}
       <nav className="h-20 px-6 md:px-10 flex items-center justify-between border-b border-[var(--border-dim)] backdrop-blur-3xl sticky top-0 z-50 bg-[var(--bg-deep)]/70">
@@ -227,7 +235,10 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
               { label: 'Red de Influencia', sub: 'ANÁLISIS DE GRAFOS' },
               { label: 'Metodología', sub: 'DOCUMENTACIÓN v4.0' },
             ].map((item, idx) => (
-              <div key={idx} className="p-5 border border-[var(--border-dim)] hover:border-[var(--color-primary-40)] hover:bg-[var(--color-primary-10)] transition-all cursor-pointer relative group">
+              <div key={idx} className="relative p-5 border border-[var(--border-dim)] hover:border-[var(--color-primary)] bg-[var(--bg-panel)] transition-all cursor-pointer group overflow-hidden">
+                {/* Corner accents */}
+                <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[var(--border-dim)] group-hover:border-[var(--color-primary)] transition-colors" />
+                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[var(--border-dim)] group-hover:border-[var(--color-primary)] transition-colors" />
                 <p className="text-[11px] font-black uppercase tracking-[0.3em] text-[var(--text-main)] group-hover:text-[var(--color-primary)]">
                   {item.label}
                 </p>
