@@ -2,8 +2,9 @@
 
 **Motor cívico de rastreo anticorrupción. Chile. Datos públicos. Sin filtro.**
 
-[![Track: hacklatam 2026](https://img.shields.io/badge/Track-Transparency%20%26%20Corruption-crimson)](#)
+[![Track: hack@latam 2026](https://img.shields.io/badge/Track-Transparency%20%26%20Corruption-crimson)](#)
 [![Stack: FastAPI + DuckDB + React](https://img.shields.io/badge/Stack-FastAPI%20%7C%20DuckDB%20%7C%20React-blue)](#)
+[![Deploy: Railway + Vercel](https://img.shields.io/badge/Deploy-Railway%20%2B%20Vercel-darkgreen)](#)
 
 ---
 
@@ -15,36 +16,33 @@ FRACTURA analiza datos públicos chilenos para detectar patrones de corrupción 
 
 ---
 
-## Estado
+## Estado — hack@latam 2026
 
-MVP funcional en `chore/pre-kickoff-base`:
-
-| Criterio | Estado |
-|----------|--------|
-| Alertas reales ≥ 1 | ✅ 209 alertas (corrupcion_chile + ChileCompra) |
-| Organismo identificado | ✅ |
-| Empresa identificada | ✅ |
-| Monto | ✅ (varios casos con monto) |
-| Fecha | ✅ |
-| Patrón activado y nombrado | ✅ P2 fraccionamiento, P3 multi-org |
-| Fuente trazable | ✅ corrupcion_chile + ChileCompra API |
-| Repo público | ✅ |
+```
+✅  Backend: FastAPI + DuckDB + slowapi rate limiting
+✅  Frontend: React 19 + Vite + Tailwind CSS v4 + Three.js
+✅  Patrones P1/P2/P3 activos con 209 alertas reales
+✅  2-page routing: LandingView (dashboard) + DetailView (caso)
+✅  GlobeGraph con nodos stroke-only (visualización correcta)
+✅  TEST_MODE badge + threshold configurado
+🔄  Deploy: Railway (backend) + Vercel (frontend) — en curso
+```
 
 ---
 
 ## Inicio rápido
 
-### Backend
+### 1. Backend
 
 ```bash
 cd backend
 pip install -r requirements.txt
-python -m uvicorn backend.main:app --reload --port 8000
+PYTHONPATH=. python -m uvicorn backend.main:app --reload --port 8000
 ```
 
-El backend levanta en `http://127.0.0.1:8000`. Endpoints disponibles en `/docs`.
+Backend en `http://127.0.0.1:8000`. Swagger docs en `/docs`.
 
-### Frontend
+### 2. Frontend
 
 ```bash
 cd frontend
@@ -52,20 +50,21 @@ npm install
 npm run dev
 ```
 
-Frontend en `http://localhost:5173`.
+Frontend en `http://localhost:5173`.  
+La variable `VITE_API_URL` se configura automáticamente en `.env.local` si no existe.
 
-> **Nota:** El frontend espera `VITE_API_URL=http://127.0.0.1:8000` en `frontend/.env.local` (creado automáticamente si no existe).
+---
 
-### Cargar datos
+## Cargar datos
 
 ```bash
-# seed corrupcion_chile + detección de patrones
+# Seed casos corrupcion_chile (131 casos)
 POST /seed
 
-# cargar ChileCompra (full load o con limit)
+# Cargar ChileCompra (limit=0 para full, o límite específico)
 POST /seed/chilecompra?limit=0
 
-# detectar patrones activos
+# Detectar patrones activos
 POST /detect/chilecompra
 ```
 
@@ -77,94 +76,163 @@ POST /detect/chilecompra
 |--------|------|-------------|
 | `GET` | `/health` | Estado del servicio y conexión a DB |
 | `POST` | `/seed` | Cargar casos corrupcion_chile |
-| `POST` | `/seed/chilecompra` | Cargar órdenes de compra ChileCompra |
+| `POST` | `/seed/chilecompra?limit=N` | Cargar órdenes de compra ChileCompra |
 | `POST` | `/detect/chilecompra` | Ejecutar reglas de detección |
-| `GET` | `/alerts` | Todas las alertas (hasta 500) |
+| `GET` | `/alerts` | Todas las alertas (paginadas) |
+| `GET` | `/alerts/chilecompra` | Alertas solo de ChileCompra |
 | `GET` | `/alerts/{id}` | Detalle de una alerta por ID |
-| `GET` | `/graph/chilecompra` | Grafo de relaciones organismos→empresas→contratos |
+| `GET` | `/graph/chilecompra` | Grafo de relaciones completo |
 | `GET` | `/graph/chilecompra?node_id=RUT` | Vecinos de un nodo específico |
-| `GET` | `/entity/{id}` | Entidad con sus relaciones directas |
+| `GET` | `/entity/{id}` | Entidad con relaciones directas |
 
 ---
 
 ## Datos cargados
 
-| Fuente | Registros | Notas |
-|--------|-----------|-------|
-| `corrupcion_chile` | 131 casos, ~74 alertas | Casos reales documentados |
-| `ChileCompra` | 318K órdenes de compra 2023 | 135 alertas (P2+P3) |
+| Fuente | Casos/Alertas | Notas |
+|--------|--------------|-------|
+| `corrupcion_chile` | 131 casos | Casos reales documentados en Chile |
+| `ChileCompra` | 318K órdenes de compra 2023 | Alertas P2+P3 activas |
 | **Total alertas** | **209** | Mezcladas por fecha DESC |
 
-### Patrones detectados
+---
 
-| Patrón | Nombre | Descripción |
-|--------|--------|-------------|
-| P1 | Proveedor único recurrente | Un proveedor gana todos los contratos de un organismo |
-| P2 | Fraccionamiento | Contratos consecutivos bajo el umbral de trato directo |
-| P3 | Multi-organismo | Un mismo RUT empresa recibe contratos de múltiples organismos |
+## Patrones detectados
+
+| ID | Patrón | Descripción | Estado |
+|----|--------|-------------|--------|
+| P1 | Proveedor único recurrente | Un proveedor gana todos los contratos de un organismo | ✅ Activo |
+| P2 | Fraccionamiento | Contratos consecutivos bajo el umbral de trato directo | ✅ Activo |
+| P3 | Multi-organismo | Un mismo RUT recibe contratos de múltiples organismos | ✅ Activo |
+
+---
+
+## Stack técnico
+
+| Capa | Tecnología | Versión |
+|------|------------|---------|
+| Backend API | FastAPI | 0.115.0 |
+| Persistencia OLAP | DuckDB | 1.5.2 |
+| Rate limiting | slowapi | 0.1.9 |
+| Frontend | React + Vite + TypeScript | 19 / 6 / 5.7 |
+| Estilos | Tailwind CSS v4 | 4.x |
+| 3D effects | Three.js + @react-three/fiber | 0.184 / 9.6 |
+| Visualización | react-force-graph-2d | 1.25 |
+| Íconos | lucide-react | latest |
+| Grafo (prod) | PostgreSQL + Apache AGE | vía docker-compose |
 
 ---
 
 ## Arquitectura
 
 ```
-Fuentes (CSV, ZIP)          DuckDB (OLAP)
-        ↓                         ↓
-    FastAPI REST          →    Endpoints
-                                   ↓
-                              React 19
-                           react-force-graph
-                           AlertTable + AlertDetail
+Fuentes (CSV, ZIP)        DuckDB (OLAP, data/fractura.db)
+      ↓                          ↓
+  FastAPI REST          →    Endpoints + slowapi
+                                 ↓
+                            React 19
+                      Three.js Background3D
+                     react-force-graph-2d
+                  LandingView  ·  DetailView
 ```
 
 - **Backend:** FastAPI 0.115.0 + DuckDB 1.5.2 — lee ZIPs directos sin descomprimir
-- **Frontend:** React 19 + Vite + TypeScript — sin estado global, hooks locales
-- **Visualización:** react-force-graph-2d para grafo de relaciones
-- **Contenedores:** Docker + docker-compose (PostgreSQL + Apache AGE opcional)
-
----
-
-## Stack técnico
-
-| Capa | Tecnología |
-|------|-------------|
-| Backend API | FastAPI 0.115.0 |
-| Persistencia OLAP | DuckDB 1.5.2 |
-| Grafo (opcional producción) | PostgreSQL + Apache AGE |
-| Frontend | React 19 + Vite + TypeScript |
-| Visualización | react-force-graph |
-| Deploy backend | Railway |
-| Deploy frontend | Vercel |
+- **Frontend:** React 19 + Vite + Tailwind CSS v4 — routing de 2 páginas
+- **3D:** Three.js particle background compartido por ambas vistas
+- **Grafo:** nodos stroke-only (formas huecas), shadowBlur para glow
+- **Contenedores:** `docker-compose.yml` para PostgreSQL + Apache AGE (modo prod)
 
 ---
 
 ## Variables de entorno
 
+### Backend (`.env` en `backend/`)
+
 | Variable | Default | Descripción |
 |----------|---------|-------------|
-| `DB_MODE` | `duckdb` | `duckdb` o `postgres` |
+| `DB_MODE` | `duckdb` | `duckdb` (local) o `postgres` (prod) |
 | `DATABASE_URL` | — | Solo si `DB_MODE=postgres` |
-| `VITE_API_URL` | `http://127.0.0.1:8000` | URL del backend para el frontend |
+| `TEST_MODE_THRESHOLD` | `0` | >0 activa modo test con umbrales reducidos |
+
+### Frontend (`.env.local` en `frontend/`)
+
+| Variable | Default | Descripción |
+|----------|---------|-------------|
+| `VITE_API_URL` | `http://127.0.0.1:8000` | URL del backend |
 
 ---
 
 ## Seguridad
 
+- Rate limiting: **60 req/min** en endpoints públicos (slowapi)
 - Secrets solo en Railway Dashboard — nunca en el repo
 - `.env` y archivos `.db` bloqueados en `.gitignore`
-- CORS con orígenes cerrados (no `*`)
+- CORS con orígenes cerrados: `https://fractura.vercel.app`, `http://localhost:5173`, `http://127.0.0.1:5173`
 - Solo GET desde el frontend — cero POST/PUT desde la UI
-- Rate limiting: 60 req/min en endpoints públicos
+- `border-radius: 0` global — estética cyberpunk
 
 ---
 
-## Documentación
+## Deploy
 
-- `docs/prd/PRD-003-Baseline-Oficial-2026-05-15.md` — spec oficial del MVP
-- `docs/data-sources.md` — fuentes de datos y estructura
+### Backend → Railway
+
+```bash
+cd backend
+railway login
+railway init
+railway up
+```
+
+Dockerfile incluido en `backend/Dockerfile`.
+
+### Frontend → Vercel
+
+```bash
+cd frontend
+npm install -g vercel
+vercel --prod
+```
+
+Conectado al repo GitHub — cada push a `main` dispara build automático.
+
+---
+
+## Diseño UI
+
+- **Fondo:** `#0D0D0D` (deep black)
+- **Señales activas:** `#00E5FF` (cyan) — solo para Interactive elements, bordes activos, glow
+- **Severidad alta:** `#FF2A2A` (red)
+- **Montos:** blanco puro `#E8E8E8` — cyan PROHIBIDO en información
+- **Tipografía:** Inter + JetBrains Mono
+- **border-radius:** 0 en todos los elementos
+
+### Vistas
+
+1. **LandingView (dashboard):** grafo interactivo + tabla de alertas + stats
+2. **DetailView (caso):** partículas red/danger + DangerAura + metadata completa
+
+---
+
+## Documentación interna
+
+| Documento | Descripción |
+|-----------|-------------|
+| `AGENTS.md` | Notas de ejecución y comandos de start |
+| `docs/prd/PRD-003-Baseline-Oficial-2026-05-15.md` | Spec oficial del MVP |
+| `docs/data-sources.md` | Fuentes de datos y estructura |
+| `fractura_research/PRDs-fractura/` | todos los PRDs del proyecto |
+
+---
+
+## Repo
+
+```
+GitHub: https://github.com/Christopher-Sch-dev/fractura
+```
 
 ---
 
 ## Licencia
 
-MIT License — ver `LICENSE`
+MIT License
