@@ -8,7 +8,7 @@ import { fetchGraph } from '../api/graph'
 import { fetchAlerts } from '../api/alerts'
 
 interface LandingViewProps {
-  onExplore: () => void
+  onExplore: (nodeId?: string) => void
 }
 
 export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
@@ -111,7 +111,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
             )}
           </div>
           <button
-            onClick={onExplore}
+            onClick={() => onExplore()}
             className="hidden md:flex items-center gap-4 bg-transparent text-[var(--text-main)] px-8 h-12 text-[10px] font-black tracking-[0.4em] uppercase group overflow-hidden relative border border-[var(--color-primary)] hover:border-[var(--color-primary)] hover:bg-[var(--color-primary-10)] transition-all duration-300"
           >
             {/* Corner accents */}
@@ -152,7 +152,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
             </p>
 
             <button
-              onClick={onExplore}
+              onClick={() => onExplore()}
               className="group/btn relative w-full lg:w-auto px-10 py-5 transition-all duration-700 border border-[var(--color-primary)] bg-[var(--bg-panel)]/20 shadow-sm hover:shadow-xl hover:shadow-[var(--color-primary-10)]"
             >
               {/* Corner accents */}
@@ -207,7 +207,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
                 error={null}
                 onNodeClick={(node) => {
                   setSelectedNode(node)
-                  onExplore()
+                  onExplore(node.id)
                 }}
                 width={700}
                 height={420}

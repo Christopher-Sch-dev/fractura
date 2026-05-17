@@ -5,14 +5,28 @@ import { fetchAlerts } from '../api/alerts'
 
 interface DetailViewProps {
   onBack: () => void
+  initialNodeId?: string | null
 }
 
-export const DetailView: FC<DetailViewProps> = ({ onBack }) => {
+export const DetailView: FC<DetailViewProps> = ({ onBack, initialNodeId }) => {
   const [alerts, setAlerts] = useState<Alerta[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedAlert, setSelectedAlert] = useState<Alerta | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [patronFilter, setPatronFilter] = useState<string>('todas')
   const [currentTime, setCurrentTime] = useState(new Date())
+
+  const PATRON_OPTIONS = ['todas', 'multi-org', 'fraccionamiento', 'recurrente', 'sin_patron']
+
+  useEffect(() => {
+    if (initialNodeId && alerts.length > 0) {
+      const match = alerts.find(a =>
+        a.organismo_id === initialNodeId ||
+        a.proveedor_id === initialNodeId
+      )
+      if (match) setSelectedAlert(match)
+    }
+  }, [initialNodeId, alerts.length])
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -25,11 +39,14 @@ export const DetailView: FC<DetailViewProps> = ({ onBack }) => {
       .catch(() => setLoading(false))
   }, [])
 
-  const filtered = alerts.filter(a =>
-    searchQuery === '' ||
-    (a.mensaje?.toLowerCase() ?? '').includes(searchQuery.toLowerCase()) ||
-    (a.id.toLowerCase() ?? '').includes(searchQuery.toLowerCase())
-  )
+  const filtered = alerts.filter(a => {
+    const matchSearch = searchQuery === '' ||
+      (a.mensaje?.toLowerCase() ?? '').includes(searchQuery.toLowerCase()) ||
+      (a.id.toLowerCase() ?? '').includes(searchQuery.toLowerCase())
+    const matchPatron = patronFilter === 'todas' ||
+      (patronFilter === 'sin_patron' ? a.patron == null : a.patron === patronFilter)
+    return matchSearch && matchPatron
+  })
 
   const formatCLP = (v: number | string | null | undefined) => {
     if (v == null) return '—'
@@ -99,7 +116,7 @@ export const DetailView: FC<DetailViewProps> = ({ onBack }) => {
 
         {/* Left: Alert table — 7 cols */}
         <div className="col-span-12 lg:col-span-7 flex flex-col border-r border-[var(--border-dim)] bg-[var(--bg-panel)]/90 backdrop-blur-md overflow-hidden">
-          {/* Search bar */}
+          {/* Search bar + patron filter */}
           <div className="p-6 border-b border-[var(--border-dim)]">
             <div className="flex items-center gap-4">
               <span className="text-[10px] font-black tracking-[0.4em] uppercase text-[var(--text-muted)]">BUSCAR</span>
@@ -110,6 +127,15 @@ export const DetailView: FC<DetailViewProps> = ({ onBack }) => {
                 placeholder="RUT, organismo, empresa..."
                 className="flex-1 bg-[var(--bg-deep)] border border-[var(--color-primary-20)] text-[var(--text-main)] font-mono text-sm px-4 py-3 focus:border-[var(--color-primary)] outline-none transition-colors"
               />
+              <select
+                value={patronFilter}
+                onChange={e => setPatronFilter(e.target.value)}
+                className="bg-[var(--bg-deep)] border border-[var(--color-primary-20)] text-[var(--text-main)] font-mono text-sm px-3 py-3 focus:border-[var(--color-primary)] outline-none cursor-pointer"
+              >
+                {PATRON_OPTIONS.map(p => (
+                  <option key={p} value={p}>{p === 'todas' ? 'TODOS' : p.toUpperCase()}</option>
+                ))}
+              </select>
               <span className="text-[10px] text-[var(--text-muted)] font-mono">
                 {filtered.length} resultados
               </span>

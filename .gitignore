@@ -79,3 +79,4 @@ docs/prd/
 docs/data-sources.md
 
 .vercel
+.env*.local

@@ -96,8 +96,10 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
         height={height}
         backgroundColor="#0D0D0D"
         nodeColor={(node: any) => NODE_COLORS[node.tipo] ?? '#A0A0A0'}
-        linkColor={() => 'rgba(255,255,255,0.05)'}
-        linkWidth={0.6}
+        linkColor={() => 'rgba(255,255,255,0.35)'}
+        linkWidth={1.5}
+        linkDirectionalParticles={0}
+        linkCurvature={0.1}
         nodeCanvasObjectMode={() => 'replace'}
         nodeCanvasObject={(node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
           const color = NODE_COLORS[node.tipo] ?? '#A0A0A0'

@@ -9,6 +9,26 @@ type View = 'landing' | 'detail'
 
 export default function App() {
   const [view, setView] = useState<View>('landing')
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
+
+  const navigateToDetail = (nodeId?: string) => {
+    setSelectedNodeId(nodeId ?? null)
+    setView('detail')
+    if (nodeId) {
+      const url = new URL(window.location.href)
+      url.searchParams.set('node', nodeId)
+      window.history.pushState({}, '', url.toString())
+    }
+  }
+
+
+  const navigateBack = () => {
+    setSelectedNodeId(null)
+    setView('landing')
+    const url = new URL(window.location.href)
+    url.searchParams.delete('node')
+    window.history.pushState({}, '', url.toString())
+  }
 
   return (
     <div className="w-full h-full min-h-screen relative overflow-hidden bg-[var(--bg-deep)]">
@@ -31,9 +51,9 @@ export default function App() {
 
       {/* Page content */}
       {view === 'landing' ? (
-        <LandingView onExplore={() => setView('detail')} />
+        <LandingView onExplore={navigateToDetail} />
       ) : (
-        <DetailView onBack={() => setView('landing')} />
+        <DetailView onBack={navigateBack} initialNodeId={selectedNodeId} />
       )}
     </div>
   )
