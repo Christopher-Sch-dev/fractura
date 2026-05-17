@@ -67,3 +67,6 @@ npm-debug.log*
 secrets/
 credentials/
 *.credentials.*
+# Graphify output
+graphify-out/
+frontend/graphify-out/
