@@ -67,8 +67,10 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
         <div className="fixed inset-0 noise-overlay" />
       </div>
 
-      {/* 3D Particle Background */}
-      <Background3D mode="landing" />
+      {/* 3D Particle Background - fixed behind content */}
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+        <Background3D mode="landing" />
+      </div>
 
       {/* Frequency Bars overlay */}
       <FrequencyBars mode="landing" />
