@@ -6,3 +6,4 @@ pydantic-settings==2.6.0
 python-multipart==0.0.20
 slowapi==0.1.9
 httpx==0.28.1
+pandas==2.2.0
