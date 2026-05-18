@@ -8,8 +8,6 @@ router = APIRouter()
 @router.get("/entity/{entity_id}")
 @limiter.limit("60/minute")
 def get_entity(request: Request, entity_id: str):
-    import sys
-    print(f"DEBUG: get_entity called with {entity_id}", flush=True)
     try:
         db = get_db()
         row = db.execute("""
@@ -50,7 +48,7 @@ def get_entity(request: Request, entity_id: str):
                 LIMIT 50
             """, (entity_id,)).fetchall()
             for r in rel:
-                neighbors.append({"id": r[0], "nombre": r[1], "monto": r[2], "fecha": r[3], "es_td": r[4], "tipo": r[5], "relation": r[6], "organismo": o.nombre})
+                neighbors.append({"id": r[0], "nombre": r[1], "monto": r[2], "fecha": r[3], "es_td": r[4], "tipo": r[5], "relation": r[6], "organismo": r[7]})
 
         elif tipo == "Contrato":
             org_rel = db.execute("""
@@ -71,13 +69,16 @@ def get_entity(request: Request, entity_id: str):
             for r in emp_rel:
                 neighbors.append({"id": r[0], "nombre": r[1], "relation": r[2]})
 
-        alert_rows = db.execute(
-            "SELECT id, tipo, mensaje, monto, organismo_id, proveedor_id, "
-            "       severity, patron, fuente, created_at "
-            "FROM alerta WHERE organismo_id = ? OR proveedor_id = ? "
-            "ORDER BY created_at DESC LIMIT 100",
-            (entity_id, entity_id)
-        ).fetchall()
+        alert_rows = db.execute("""
+            SELECT id, tipo, mensaje, monto, organismo_id, proveedor_id,
+                   severity, patron, fuente, created_at
+            FROM alerta
+            WHERE organismo_id = ?
+               OR proveedor_id = ?
+               OR (id LIKE 'p3_%' AND split_part(id, '_', 2) = ?)
+            ORDER BY created_at DESC
+            LIMIT 100
+        """, (entity_id, entity_id, entity_id)).fetchall()
         alertas = []
         for r in alert_rows:
             alertas.append({
@@ -86,34 +87,8 @@ def get_entity(request: Request, entity_id: str):
                 "severity": r[6], "patron": r[7], "fuente": r[8],
                 "created_at": str(r[9]) if r[9] else None,
             })
-        print(f"DEBUG get_entity({entity_id}): tipo={tipo}, neighbors={len(neighbors)}, alertas={len(alertas)}", flush=True)
-        return EntityResponse(id=entity_id_db, nombre=nombre, tipo=tipo, source=fuente, neighbors=neighbors, alertas=alertas, _debug_commit="FINAL_TEST")
+        return EntityResponse(id=entity_id_db, nombre=nombre, tipo=tipo, source=fuente, neighbors=neighbors, alertas=alertas)
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-@router.get("/entity/{entity_id}/debug")
-def debug_entity(request: Request, entity_id: str):
-    """Temporary debug endpoint - will be removed"""
-    try:
-        db = get_db()
-        alert_rows = db.execute(
-            "SELECT id, tipo, mensaje, monto, organismo_id, proveedor_id, "
-            "       severity, patron, fuente, created_at "
-            "FROM alerta WHERE organismo_id = ? OR proveedor_id = ? "
-            "ORDER BY created_at DESC LIMIT 100",
-            (entity_id, entity_id)
-        ).fetchall()
-        alertas = []
-        for r in alert_rows:
-            alertas.append({
-                "id": r[0], "tipo": r[1], "mensaje": r[2], "monto": r[3],
-                "organismo_id": r[4], "proveedor_id": r[5],
-                "severity": r[6], "patron": r[7], "fuente": r[8],
-                "created_at": str(r[9]) if r[9] else None,
-            })
-        return {"entity_id": entity_id, "alertas_count": len(alertas), "alertas": alertas}
-    except Exception as e:
-        import traceback
-        return {"error": str(e), "trace": traceback.format_exc()}
