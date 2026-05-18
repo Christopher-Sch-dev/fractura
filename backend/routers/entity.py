@@ -89,3 +89,28 @@ def get_entity(request: Request, entity_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/entity/{entity_id}/debug")
+def debug_entity(request: Request, entity_id: str):
+    """Temporary debug endpoint - will be removed"""
+    try:
+        db = get_db()
+        alert_rows = db.execute(
+            "SELECT id, tipo, mensaje, monto, organismo_id, proveedor_id, "
+            "       severity, patron, fuente, created_at "
+            "FROM alerta WHERE organismo_id = ? OR proveedor_id = ? "
+            "ORDER BY created_at DESC LIMIT 100",
+            (entity_id, entity_id)
+        ).fetchall()
+        alertas = []
+        for r in alert_rows:
+            alertas.append({
+                "id": r[0], "tipo": r[1], "mensaje": r[2], "monto": r[3],
+                "organismo_id": r[4], "proveedor_id": r[5],
+                "severity": r[6], "patron": r[7], "fuente": r[8],
+                "created_at": str(r[9]) if r[9] else None,
+            })
+        return {"entity_id": entity_id, "alertas_count": len(alertas), "alertas": alertas}
+    except Exception as e:
+        import traceback
+        return {"error": str(e), "trace": traceback.format_exc()}
