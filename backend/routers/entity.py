@@ -86,7 +86,8 @@ def get_entity(request: Request, entity_id: str):
                 "severity": r[6], "patron": r[7], "fuente": r[8],
                 "created_at": str(r[9]) if r[9] else None,
             })
-        return EntityResponse(id=entity_id_db, nombre=nombre, tipo=tipo, source=fuente, neighbors=neighbors, alertas=alertas, _debug_commit="0df687b")
+        print(f"DEBUG get_entity({entity_id}): tipo={tipo}, neighbors={len(neighbors)}, alertas={len(alertas)}", flush=True)
+        return EntityResponse(id=entity_id_db, nombre=nombre, tipo=tipo, source=fuente, neighbors=neighbors, alertas=alertas, _debug_commit="FINAL_TEST")
     except HTTPException:
         raise
     except Exception as e:
