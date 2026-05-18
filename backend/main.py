@@ -29,6 +29,14 @@ def log_request(req: Request, call_next):
     return res
 
 
+from fastapi import APIRouter
+
+test_router = APIRouter()
+
+@test_router.get('/ping-new-code')
+def ping_new_code():
+    return {'msg': 'NEW_CODE_RUNNING', 'commit': '67ed280'}
+
 from routers import health, seed, alerts, entity, chilecompra, graph
 from db import close_db, get_db
 
@@ -70,3 +78,4 @@ app.include_router(chilecompra.router)
 app.include_router(entity.router)
 app.include_router(alerts.router)
 app.include_router(graph.router)
+app.include_router(test_router)
