@@ -24,6 +24,7 @@ class EntityResponse(BaseModel):
     tipo: str
     source: Optional[str] = None
     neighbors: list[dict]
+    alertas: list[dict]
 
 class AlertaItem(BaseModel):
     id: Optional[str] = None
