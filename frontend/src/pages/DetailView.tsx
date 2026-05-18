@@ -67,7 +67,7 @@ export const DetailView: FC<DetailViewProps> = ({ onBack, initialNodeId }) => {
   const pad = (n: number) => String(n).padStart(2, '0')
   const dateStr = `${pad(currentTime.getDate())}/${pad(currentTime.getMonth() + 1)}/${currentTime.getFullYear()}`
 
-  const totalMonto = alerts.reduce((s, a) => s + parseFloat(String(a.monto ?? '0')), 0)
+  const totalMonto = (alerts ?? []).reduce((s, a) => s + parseFloat(String(a.monto ?? '0')), 0)
   const highCount = alerts.filter(a => a.severidad === 'high').length
 
   return (

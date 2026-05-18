@@ -90,7 +90,7 @@ export const NodeView: FC = () => {
     )
   }
 
-  const totalMonto = entity.alertas.reduce((s, a) => s + parseFloat(String(a.monto ?? '0')), 0)
+  const totalMonto = (entity.alertas ?? []).reduce((s, a) => s + parseFloat(String(a.monto ?? '0')), 0)
   const highAlerts = entity.alertas.filter(a => a.severity === 'high').length
   const pad = (n: number) => String(n).padStart(2, '0')
   const dateStr = `${pad(currentTime.getDate())}/${pad(currentTime.getMonth() + 1)}/${currentTime.getFullYear()}`

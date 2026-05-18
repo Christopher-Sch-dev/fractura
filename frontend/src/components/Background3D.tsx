@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect } from 'react'
+import { useRef, useMemo, useEffect, useCallback } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Points, PointMaterial, Sparkles } from '@react-three/drei'
 import * as THREE from 'three'
@@ -27,17 +27,19 @@ function ParticleField({ count = 5000, color = '#00E5FF', size = 0.1, mode = 'la
   }, [])
 
   useFrame((state, delta) => {
-    if (ref.current) {
+    if (!ref.current || !ref.current.parent) return
+    try {
       ref.current.rotation.x -= delta / 25
       ref.current.rotation.y -= delta / 30
       ref.current.position.x += (mouse.current.x * 2 - ref.current.position.x) * 0.02
       ref.current.position.y += (-mouse.current.y * 2 - ref.current.position.y) * 0.02
-      const time = state.clock.getElapsedTime()
-      ref.current.scale.setScalar(1 + Math.sin(time * 0.5) * 0.05)
+      const elapsed = state.clock.elapsedTime
+      ref.current.scale.setScalar(1 + Math.sin(elapsed * 0.5) * 0.05)
       if (ref.current.material instanceof THREE.PointsMaterial) {
-        const pulse = 1 + Math.sin(time * 3) * 0.2
+        const pulse = 1 + Math.sin(elapsed * 3) * 0.2
         ref.current.material.size = size * pulse
       }
+    } catch {
     }
   })
 
@@ -59,10 +61,12 @@ function DangerAura() {
   const ref = useRef<THREE.Group>(null)
 
   useFrame((state) => {
-    if (ref.current) {
+    if (!ref.current) return
+    try {
       ref.current.rotation.z += 0.002
-      const pulse = 1 + Math.sin(state.clock.getElapsedTime() * 2) * 0.15
+      const pulse = 1 + Math.sin(state.clock.elapsedTime * 2) * 0.15
       ref.current.scale.setScalar(pulse)
+    } catch {
     }
   })
 
@@ -82,10 +86,24 @@ interface Background3DProps {
 export default function Background3D({ mode = 'landing' }: Background3DProps) {
   const count = mode === 'detail' ? 7000 : 5000
   const particleColor = mode === 'detail' ? '#FF4060' : '#00E5FF'
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const handleCreated = useCallback(({ gl }: { gl: THREE.WebGLRenderer }) => {
+    gl.domElement.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault()
+    }, false)
+    gl.domElement.addEventListener('webglcontextrestored', () => {
+    }, false)
+  }, [])
 
   return (
     <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: mode === 'detail' ? 0.7 : 0.6 }}>
-      <Canvas camera={{ position: [0, 0, 20], fov: 60 }}>
+      <Canvas
+        ref={canvasRef}
+        camera={{ position: [0, 0, 20], fov: 60 }}
+        onCreated={handleCreated}
+        gl={{ antialias: false, powerPreference: 'low-power' }}
+      >
         <ParticleField count={count} color={particleColor} mode={mode} />
         {mode === 'detail' && <DangerAura />}
         <ambientLight intensity={0.5} />

@@ -62,7 +62,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore, alertDismissed, s
   const selectedAlerts = selectedNode
     ? alerts.filter(a => a.organismo_id === selectedNode.id || a.proveedor_id === selectedNode.id)
     : alerts
-  const totalMonto = selectedAlerts.reduce((s, a) => s + parseFloat(String(a.monto ?? '0')), 0)
+  const totalMonto = (selectedAlerts ?? []).reduce((s, a) => s + parseFloat(String(a.monto ?? '0')), 0)
   const highCount = selectedAlerts.filter(a => a.severidad === 'high').length
 
   const formatBillions = (n: number) =>
