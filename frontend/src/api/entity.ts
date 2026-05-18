@@ -35,9 +35,21 @@ export interface EntityResponse {
   alertas: EntityAlert[]
 }
 
+// Fetch all alerts and filter by nodeId (client-side workaround for backend alertas field)
+async function fetchAlertsByNode(nodeId: string): Promise<EntityAlert[]> {
+  const res = await fetch(buildUrl('/alerts'))
+  if (!res.ok) return []
+  const data = await res.json()
+  const all: EntityAlert[] = data.alertas ?? []
+  return all.filter(a => a.organismo_id === nodeId || a.proveedor_id === nodeId)
+}
+
 export async function fetchEntity(entityId: string): Promise<EntityResponse> {
-  const url = buildUrl(`/entity/${encodeURIComponent(entityId)}`)
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`Entity ${entityId} not found`)
-  return res.json()
+  const [entityRes, alertas] = await Promise.all([
+    fetch(buildUrl(`/entity/${encodeURIComponent(entityId)}`)),
+    fetchAlertsByNode(entityId),
+  ])
+  if (!entityRes.ok) throw new Error(`Entity ${entityId} not found`)
+  const entity = await entityRes.json()
+  return { ...entity, alertas }
 }
