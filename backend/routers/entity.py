@@ -27,7 +27,8 @@ def get_entity(request: Request, entity_id: str):
         neighbors = []
 
         if tipo == "Organismo":
-            rel = db.execute("""
+            p3_ruts = [entity_id]
+            org_rel = db.execute("""
                 SELECT c.id, c.oc_id, c.monto, c.fecha, c.es_trato_directo, c.tipo, 'recibe', e.nombre
                 FROM contrato c
                 JOIN empresa e ON c.proveedor_id = e.id
@@ -35,11 +36,12 @@ def get_entity(request: Request, entity_id: str):
                 ORDER BY c.fecha DESC
                 LIMIT 50
             """, (entity_id,)).fetchall()
-            for r in rel:
+            for r in org_rel:
                 neighbors.append({"id": r[0], "nombre": r[1], "monto": r[2], "fecha": r[3], "es_td": r[4], "tipo": r[5], "relation": r[6], "empresa": r[7]})
 
         elif tipo == "Empresa":
-            rel = db.execute("""
+            p3_ruts = [entity_id]
+            emp_rel = db.execute("""
                 SELECT c.id, c.oc_id, c.monto, c.fecha, c.es_trato_directo, c.tipo, 'contrata', o.nombre
                 FROM contrato c
                 JOIN organismo o ON c.organismo_id = o.rut
@@ -47,10 +49,11 @@ def get_entity(request: Request, entity_id: str):
                 ORDER BY c.fecha DESC
                 LIMIT 50
             """, (entity_id,)).fetchall()
-            for r in rel:
+            for r in emp_rel:
                 neighbors.append({"id": r[0], "nombre": r[1], "monto": r[2], "fecha": r[3], "es_td": r[4], "tipo": r[5], "relation": r[6], "organismo": r[7]})
 
         elif tipo == "Contrato":
+            p3_ruts = []
             org_rel = db.execute("""
                 SELECT o.rut, o.nombre, 'contrata'
                 FROM contrato c
@@ -68,6 +71,9 @@ def get_entity(request: Request, entity_id: str):
             """, (entity_id,)).fetchall()
             for r in emp_rel:
                 neighbors.append({"id": r[0], "nombre": r[1], "relation": r[2]})
+
+        else:
+            p3_ruts = []
 
         alert_rows = db.execute("""
             SELECT id, tipo, mensaje, monto, organismo_id, proveedor_id,
