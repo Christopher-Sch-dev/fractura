@@ -16,6 +16,7 @@ export const DetailView: FC<DetailViewProps> = ({ onBack, initialNodeId }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [patronFilter, setPatronFilter] = useState<string>('todas')
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [fetchError, setFetchError] = useState(false)
 
   const PATRON_OPTIONS = ['todas', 'multi-org', 'fraccionamiento', 'recurrente', 'sin_patron']
 
@@ -35,9 +36,9 @@ export const DetailView: FC<DetailViewProps> = ({ onBack, initialNodeId }) => {
   }, [])
 
   useEffect(() => {
-    fetchAlerts({ limit: 200 })
-      .then(d => { setAlerts(d.alertas ?? []); setLoading(false) })
-      .catch(() => setLoading(false))
+    fetchAlerts({ limit: 500 })
+      .then(d => { setAlerts(d.alertas ?? []); setLoading(false); setFetchError(false) })
+      .catch(() => { setLoading(false); setFetchError(true) })
   }, [])
 
   const filtered = alerts.filter(a => {
@@ -159,6 +160,12 @@ export const DetailView: FC<DetailViewProps> = ({ onBack, initialNodeId }) => {
                   <tr>
                     <td colSpan={3} className="px-10 py-12 text-center text-[var(--text-muted)] font-mono text-sm tracking-widest uppercase">
                       Cargando alertas...
+                    </td>
+                  </tr>
+                ) : fetchError ? (
+                  <tr>
+                    <td colSpan={3} className="px-10 py-12 text-center text-[var(--color-alert)] font-mono text-sm tracking-widest uppercase">
+                      Error al cargar alertas — revisa la conexión al API
                     </td>
                   </tr>
                 ) : filtered.length === 0 ? (

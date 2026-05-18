@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { LandingView } from './pages/LandingView'
 import { NodeView } from './pages/NodeView'
 import { DetailView } from './pages/DetailView'
@@ -6,10 +7,28 @@ import Background3D from './components/Background3D'
 import { FrequencyBars } from './components/FrequencyBars'
 import './App.css'
 
+// Shared alert dismissed state — survives navigation
+function useAlertDismissed() {
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      return sessionStorage.getItem('fractura_alert_dismissed') === '1'
+    } catch {
+      return false
+    }
+  })
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('fractura_alert_dismissed', dismissed ? '1' : '0')
+    } catch {}
+  }, [dismissed])
+  return [dismissed, setDismissed] as const
+}
+
 // Inner app that has access to router context
 function AppInner() {
   const [searchParams] = useSearchParams()
   const nodeId = searchParams.get('node')
+  const [alertDismissed, setAlertDismissed] = useAlertDismissed()
 
   return (
     <div className="w-full h-full min-h-screen relative overflow-hidden bg-[var(--bg-deep)]">
@@ -32,7 +51,7 @@ function AppInner() {
 
       {/* Page routes */}
       <Routes>
-        <Route path="/" element={<LandingViewWrapper />} />
+        <Route path="/" element={<LandingViewWrapper alertDismissed={alertDismissed} setAlertDismissed={setAlertDismissed} />} />
         <Route path="/detail" element={<DetailViewWrapper />} />
         <Route path="/node/:nodeId" element={<NodeView />} />
       </Routes>
@@ -41,7 +60,7 @@ function AppInner() {
 }
 
 // LandingView wrapper: uses navigate for internal links
-function LandingViewWrapper() {
+function LandingViewWrapper({ alertDismissed, setAlertDismissed }: { alertDismissed: boolean; setAlertDismissed: (v: boolean) => void }) {
   const navigate = useNavigate()
 
   const handleExplore = (nodeId?: string) => {
@@ -52,7 +71,7 @@ function LandingViewWrapper() {
     }
   }
 
-  return <LandingView onExplore={handleExplore} />
+  return <LandingView onExplore={handleExplore} alertDismissed={alertDismissed} setAlertDismissed={setAlertDismissed} />
 }
 
 // DetailView wrapper: reads ?node= from URL, provides onBack

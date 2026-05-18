@@ -9,14 +9,15 @@ import { fetchAlerts } from '../api/alerts'
 
 interface LandingViewProps {
   onExplore: (nodeId?: string) => void
+  alertDismissed: boolean
+  setAlertDismissed: (v: boolean) => void
 }
 
-export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
+export const LandingView: FC<LandingViewProps> = ({ onExplore, alertDismissed, setAlertDismissed }) => {
   const [graphData, setGraphData] = useState<GraphData | null>(null)
   const [alerts, setAlerts] = useState<Alerta[]>([])
   const [loading, setLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [alertDismissed, setAlertDismissed] = useState(false)
   const [testMode, setTestMode] = useState(false)
   const [selectedNode] = useState<GraphNode | null>(null)
 
@@ -294,9 +295,7 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore }) => {
 }
 
 function AlertOverlayWithDismiss({ alerts, onDismiss }: { alerts: Alerta[]; onDismiss: () => void }) {
-  const [dismissed, setDismissed] = useState(false)
-
-  if (dismissed || !alerts.length) return null
+  if (!alerts.length) return null
 
   const total = alerts.reduce((s, a) => s + parseFloat(String(a.monto ?? '0')), 0)
   const highSeverity = alerts.filter(a => a.severidad === 'high').length
@@ -308,7 +307,7 @@ function AlertOverlayWithDismiss({ alerts, onDismiss }: { alerts: Alerta[]; onDi
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
       <div className="relative p-10 bg-[var(--bg-deep)]/90 backdrop-blur-xl border border-[var(--color-alert)] shadow-2xl system-heartbeat pointer-events-auto">
         <button
-          onClick={() => { setDismissed(true); onDismiss() }}
+          onClick={onDismiss}
           className="absolute top-3 right-3 text-[var(--text-muted)] hover:text-[var(--color-alert)] transition-colors font-mono text-[9px] font-black uppercase tracking-widest"
         >
           [CLOSE_X]
