@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+model_config = ConfigDict(extra="ignore")
 from typing import Optional
 
 class SeedResponse(BaseModel):
