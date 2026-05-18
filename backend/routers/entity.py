@@ -8,6 +8,8 @@ router = APIRouter()
 @router.get("/entity/{entity_id}")
 @limiter.limit("60/minute")
 def get_entity(request: Request, entity_id: str):
+    import sys
+    print(f"DEBUG: get_entity called with {entity_id}", flush=True)
     try:
         db = get_db()
         row = db.execute("""
