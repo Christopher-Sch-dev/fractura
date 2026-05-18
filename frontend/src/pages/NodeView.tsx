@@ -38,11 +38,24 @@ export const NodeView: FC = () => {
 
   useEffect(() => {
     if (!nodeId) return
+    let stale = false
+
     setLoading(true)
     setError(null)
+
     fetchEntity(nodeId)
-      .then(d => { setEntity(d); setLoading(false) })
-      .catch(() => { setError('Nodo no encontrado'); setLoading(false) })
+      .then(d => {
+        if (stale) return
+        setEntity(d)
+        setLoading(false)
+      })
+      .catch(() => {
+        if (stale) return
+        setError('Nodo no encontrado')
+        setLoading(false)
+      })
+
+    return () => { stale = true }
   }, [nodeId])
 
   useEffect(() => {

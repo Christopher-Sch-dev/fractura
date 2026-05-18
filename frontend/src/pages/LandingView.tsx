@@ -35,17 +35,26 @@ export const LandingView: FC<LandingViewProps> = ({ onExplore, alertDismissed, s
   }, [])
 
   useEffect(() => {
+    let stale = false
+
     setLoading(true)
+
     Promise.all([
       fetchGraph(undefined, 200),
       fetchAlerts({ limit: 500 }),
     ])
       .then(([gData, aData]) => {
+        if (stale) return
         setGraphData(gData)
         setAlerts(aData.alertas ?? [])
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => {
+        if (stale) return
+        setLoading(false)
+      })
+
+    return () => { stale = true }
   }, [])
 
   const orgCount = graphData?.nodes.filter(n => n.tipo === 'Organismo').length ?? 0

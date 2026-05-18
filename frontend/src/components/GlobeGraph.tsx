@@ -37,64 +37,43 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
 }) => {
   const fgRef = useRef<any>(null)
   const [highlight, setHighlight] = useState<HighlightState>({ nodeId: null, neighborIds: new Set(), linkIds: new Set() })
-
-  const handleNodeClick = useCallback((node: any) => {
-    if (!fgRef.current || !data) return
-
-    const neighborIds = new Set<string>()
-    const linkIds = new Set<string>()
-
-    data.links.forEach((link: any) => {
-      const srcId = typeof link.source === 'object' ? link.source.id : link.source
-      const tgtId = typeof link.target === 'object' ? link.target.id : link.target
-      if (srcId === node.id || tgtId === node.id) {
-        neighborIds.add(srcId)
-        neighborIds.add(tgtId)
-        linkIds.add(link.id ?? `${srcId}-${tgtId}`)
-      }
-    })
-
-    setHighlight({ nodeId: node.id, neighborIds, linkIds })
-
-    try {
-      const nodeX = node.x ?? 0
-      const nodeY = node.y ?? 0
-      fgRef.current.centerAt(nodeX, nodeY, 400)
-      fgRef.current.zoom(2.5, 400)
-    } catch (e) {
-      // ignore
-    }
-
-    onNodeClick?.(node as GraphNode)
-  }, [data, onNodeClick])
-
-  const handleNodeHover = useCallback((node: any) => {
-    if (!data) return
-
-    if (!node) {
-      setHighlight({ nodeId: null, neighborIds: new Set(), linkIds: new Set() })
-      return
-    }
-
-    const neighborIds = new Set<string>()
-    const linkIds = new Set<string>()
-
-    data.links.forEach((link: any) => {
-      const srcId = typeof link.source === 'object' ? link.source.id : link.source
-      const tgtId = typeof link.target === 'object' ? link.target.id : link.target
-      if (srcId === node.id || tgtId === node.id) {
-        neighborIds.add(srcId)
-        neighborIds.add(tgtId)
-        linkIds.add(link.id ?? `${srcId}-${tgtId}`)
-      }
-    })
-
-    setHighlight({ nodeId: node.id, neighborIds, linkIds })
-  }, [data])
+  const dataRef = useRef(data)
+  const zoomTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
+    dataRef.current = data
+  }, [data])
+
+  const handleNodeClick = useCallback((node: any) => {
+    if (!fgRef.current || !dataRef.current) return
+
+    const currentData = dataRef.current
+    const neighborIds = new Set<string>()
+    const linkIds = new Set<string>()
+
+    currentData.links.forEach((link: any) => {
+      const srcId = typeof link.source === 'object' ? link.source.id : link.source
+      const tgtId = typeof link.target === 'object' ? link.target.id : link.target
+      if (srcId === node.id || tgtId === node.id) {
+        neighborIds.add(srcId)
+        neighborIds.add(tgtId)
+        linkIds.add(link.id ?? `${srcId}-${tgtId}`)
+      }
+    })
+
+    setHighlight({ nodeId: node.id, neighborIds, linkIds })
+    onNodeClick?.(node)
+  }, [onNodeClick])
+
+  useEffect(() => {
+    if (zoomTimer.current) {
+      clearTimeout(zoomTimer.current)
+      zoomTimer.current = null
+    }
     if (data && fgRef.current) {
-      setTimeout(() => {
+      const currentData = data
+      zoomTimer.current = setTimeout(() => {
+        if (!fgRef.current || dataRef.current !== currentData) return
         try {
           fgRef.current.zoomToFit(600, 30)
           fgRef.current.centerAt(0, 0, 400)
@@ -102,6 +81,12 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
           // ignore
         }
       }, 200)
+    }
+    return () => {
+      if (zoomTimer.current) {
+        clearTimeout(zoomTimer.current)
+        zoomTimer.current = null
+      }
     }
   }, [data])
 
@@ -243,7 +228,6 @@ export const GlobeGraph: FC<GlobeGraphProps> = ({
             ctx.globalAlpha = 1
           }}
           onNodeClick={handleNodeClick}
-          onNodeHover={handleNodeHover}
         />
       </div>
     </>
